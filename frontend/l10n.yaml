@@ -1,0 +1,14 @@
+# Config for `flutter gen-l10n`, run automatically by `flutter pub get` / `flutter run`
+# because pubspec.yaml has `flutter: generate: true`. See lib/l10n/README.md for the
+# full pattern (how to add a string, how locale fallback works).
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+
+# Generated into the repo instead of the default synthetic package so both teammates can
+# jump to the generated code from their IDE and CI/review can see a diff of what changed,
+# same as any other generated-but-committed file in this repo. Must live outside arb-dir —
+# gen-l10n refuses to read and write the same directory.
+synthetic-package: false
+output-dir: lib/l10n_gen

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:smriti/core/locale_controller.dart';
 import 'package:smriti/core/theme.dart';
+import 'package:smriti/l10n_gen/app_localizations.dart';
 import 'package:smriti/modules/asha/asha_home.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/caregiver/caregiver_home.dart';
@@ -19,11 +21,26 @@ class SmritiApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Smriti',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.light,
-      home: const RoleSelectScreen(),
+    // Rebuilds the whole app when AppLanguageSelector (or anything else) calls
+    // AppLocaleController.instance.setLocale — see core/locale_controller.dart.
+    return ValueListenableBuilder<Locale?>(
+      valueListenable: AppLocaleController.instance,
+      builder: (context, locale, _) {
+        return MaterialApp(
+          // Localization infra only for now (see lib/l10n/README.md) — no screen has
+          // been migrated to read strings from AppLocalizations yet. onGenerateTitle
+          // is the one place already wired end-to-end, proving the pipeline works:
+          // the OS-level app title switches script with the locale below.
+          onGenerateTitle: (context) => AppLocalizations.of(context)?.appTitle ?? 'Smriti',
+          locale: locale,
+          // Already includes the Global Material/Widgets/Cupertino delegates.
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocaleController.supported,
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light,
+          home: const RoleSelectScreen(),
+        );
+      },
     );
   }
 }

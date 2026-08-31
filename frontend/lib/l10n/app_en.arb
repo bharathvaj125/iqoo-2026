@@ -1,0 +1,8 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Smriti",
+  "@appTitle": {
+    "description": "The app's name/title. This is the one string wired end-to-end right now to prove the localization pipeline works (see lib/l10n/README.md) — every other UI string in the app is still hardcoded English pending each module owner's own localization pass."
+  }
+}
