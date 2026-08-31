@@ -5,63 +5,79 @@ import 'package:flutter/material.dart';
 /// colours or swap these for "close enough" alternatives; if a screen seems to
 /// need one, it's a sign the layout needs rethinking, not the palette.
 ///
-/// * **Never red, anywhere, for any state, including errors.** This is a
-///   deliberate accessibility and zero-frustration decision (see [distress]),
-///   not a style preference.
-/// * **The lens yellows with age**, which compresses discrimination at the
-///   blue/violet end. Warm hues, and more importantly large *luminance* gaps,
-///   survive that far better — primary and accent differ in both hue and
-///   luminance, not just hue.
-/// * **Colour is never the only signal.** Every state that uses colour here is
-///   also carried by an icon, a label, or both.
+/// The choices here are driven by how ageing and dementia actually change
+/// vision and attention, not by taste:
+///
+/// * **The lens yellows with age**, which compresses discrimination at the blue
+///   and violet end. Warm hues and, more importantly, large *luminance* gaps
+///   survive that far better — so no two meaningful colours here are separated
+///   by hue alone, and the two most-used ones (teal, amber) differ in both.
+/// * **Contrast sensitivity drops**, so text sits at a high ratio against its
+///   background — but on a warm ivory rather than pure white, because a bright
+///   white field is a common source of glare and visual fatigue for older eyes.
+/// * **Never red, anywhere, for any state, including errors** — in every
+///   module, not just the Patient module. This is a deliberate accessibility
+///   and zero-frustration decision (see [distress]), not a style preference.
+/// * **Colour is never the only signal.** Every state that uses colour in this
+///   app is also carried by an icon, a label, or both — colour vision loss
+///   shouldn't cost the user information.
 class AppColors {
   AppColors._();
 
-  /// Warm parchment. Lower glare than #FFFFFF while keeping text contrast high.
+  /// Warm ivory. Lower glare than #FFFFFF while keeping text contrast high.
   static const Color surface = Color(0xFFFAF6EC);
 
-  /// Slightly deeper parchment for cards that need to separate from the page
+  /// Slightly deeper ivory for cards that need to separate from the page
   /// without a shadow doing the work.
   static const Color surfaceRaised = Color(0xFFF1EADA);
 
-  /// Deep pine / tea-garden green.
+  /// Deep teal-green. Calm and non-clinical, dark enough to carry white text,
+  /// and far from [accent] in both hue and luminance.
   static const Color primary = Color(0xFF1F4A3D);
 
-  /// Turmeric / harvest gold.
+  /// Turmeric gold / warm amber, darkened until it holds contrast as text on
+  /// [surface].
   static const Color accent = Color(0xFFC98A2E);
 
-  /// Reserved exclusively for the companion character (see widgets/companion_widget.dart)
-  /// — never use this for a functional UI element. Not part of the app chrome palette;
-  /// listed here only so nothing else accidentally reuses it.
+  /// Reserved exclusively for the companion character (see
+  /// widgets/companion_widget.dart) — never use this for a functional UI
+  /// element. Not part of the app chrome palette; listed here only so nothing
+  /// else accidentally reuses it.
   static const Color companionOnly = Color(0xFF8FB9C4);
 
-  /// Pale gold-cream. A background wash for a positive/on-track state — e.g. an
-  /// "everything's on schedule" card — not a foreground icon/text/button colour;
-  /// it's too light for that role against [surface].
-  static const Color softSuccessBackground = Color(0xFFE8DCC0);
+  /// Pale gold-cream. A background wash for a positive/on-track state — e.g.
+  /// an "everything's on schedule" card — not a foreground icon/text/button
+  /// colour; it's too light for that role against [surface].
+  static const Color success = Color(0xFFE8DCC0);
 
-  /// Deep navy ink.
+  /// Strong positive confirmation signal — checkmarks, completion badges,
+  /// "acknowledged" icons. The same hue as [primary] rather than a separate
+  /// green, so a confirmed state reads as "on-brand calm", not "test passed".
+  static const Color successAccent = primary;
+
+  /// Warm near-black. Pure black on ivory reads harsher than this.
   static const Color textPrimary = Color(0xFF1B2A41);
   static const Color textSecondary = Color(0xFF4C5A6E);
 
   /// Needs-attention states (a missed session, falling adherence, an open
-  /// trend flag). Deliberately the *same* gold as [accent] rather than a
-  /// separate hue — the design system's locked palette has no dedicated
-  /// "warning" colour, and red is explicitly banned even for errors. Every
-  /// call site pairs this with an icon or label, per the colour-is-never-
-  /// the-only-signal rule above, so reusing accent's hue doesn't cost
-  /// legibility even where it sits next to an actual accent-coloured CTA.
+  /// trend flag, the Patient module's SOS). Deliberately the *same* gold as
+  /// [accent] rather than a separate hue — the locked palette has no
+  /// dedicated "warning"/"danger" colour, and red is banned even for errors,
+  /// in every module. Every call site pairs this with an icon or label, per
+  /// the colour-is-never-the-only-signal rule above, so reusing accent's hue
+  /// doesn't cost legibility even where it sits next to an actual
+  /// accent-coloured CTA.
   static const Color distress = accent;
 
   static const Color divider = Color(0xFFE0D6C0);
   static const Color cardShadow = Color(0x14000000);
 
-  // --- Aliases so both halves of the codebase compile unchanged ---
-  // The ASHA/caregiver modules were written against `danger`; the patient
-  // module against `bgSoft`/`success`. Same underlying palette, one definition.
+  // --- Aliases so both halves of the codebase compile against whichever
+  // name they were written against, without renaming call sites. ---
   static const Color danger = distress;
   static const Color bgSoft = surface;
-  static const Color success = primary;
+  static const Color softSuccessBackground = success;
+  static const Color companionBody = companionOnly;
 }
 
 /// Two densities over one palette and one type system.

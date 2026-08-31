@@ -6,6 +6,9 @@ import 'package:smriti/core/theme.dart';
 /// app-workflow slide, and the Caregiver Alert & Sync service in
 /// the architecture diagram. Kept to one big reassuring button —
 /// no multi-step forms during a distress moment.
+///
+/// NOTE: In the Patient module, AppColors.accent (gold) is used instead of red (AppColors.distress),
+/// adhering strictly to the "no red anywhere in Patient module" design system requirement.
 Future<void> showDistressDialog(BuildContext context, ElderProfile profile) {
   return showDialog(
     context: context,
@@ -13,7 +16,7 @@ Future<void> showDistressDialog(BuildContext context, ElderProfile profile) {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       title: const Row(
         children: [
-          Icon(Icons.sos, color: AppColors.distress),
+          Icon(Icons.sos, color: AppColors.accent, size: 30),
           SizedBox(width: 8),
           Text('Need help?'),
         ],
@@ -29,7 +32,8 @@ Future<void> showDistressDialog(BuildContext context, ElderProfile profile) {
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.distress,
+            backgroundColor: AppColors.accent,
+            foregroundColor: Colors.white,
             minimumSize: const Size(140, 52),
           ),
           onPressed: () async {
@@ -45,7 +49,7 @@ Future<void> showDistressDialog(BuildContext context, ElderProfile profile) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   content: Text('Help is on the way. Family notified.'),
-                  backgroundColor: AppColors.success,
+                  backgroundColor: AppColors.primary,
                 ),
               );
             }

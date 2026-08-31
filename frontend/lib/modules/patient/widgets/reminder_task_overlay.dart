@@ -73,7 +73,7 @@ class _ReminderTaskOverlayState extends State<ReminderTaskOverlay> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.primary.withOpacity(0.97),
+      color: AppColors.primary.withValues(alpha: 0.97),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(28),
@@ -121,12 +121,12 @@ class _ReminderTaskOverlayState extends State<ReminderTaskOverlay> {
                   ),
                   child: _acking
                       ? const CircularProgressIndicator()
-                      : const Text("✅  I did it!"),
+                      : const Text('✅  I did it!'),
                 ),
               ),
               const SizedBox(height: 12),
               const Text(
-                "Your game is waiting for you right where you left it.",
+                'Your game is waiting for you right where you left it.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white70, fontSize: 15),
               ),

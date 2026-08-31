@@ -5,6 +5,7 @@ import '../services/companion.dart';
 import '../services/companion_controller.dart';
 import '../services/local_store.dart';
 import 'package:smriti/core/theme.dart';
+import '../../../../widgets/companion_widget.dart';
 
 /// Time-of-day triggered safety/routine nudge (Phase 3 — Daily Living
 /// Guidance). Distinct from caregiver reminders and from scored gameplay:
@@ -55,17 +56,26 @@ class _DailyLivingCardState extends State<DailyLivingCard> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.12),
+        color: AppColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Icon(Icons.wb_twilight, color: AppColors.success, size: 28),
-              const SizedBox(width: 10),
+              ListenableBuilder(
+                listenable: Companion.instance.controller,
+                builder: (context, _) {
+                  return CompanionWidget(
+                    expression: Companion.instance.controller.expression,
+                    size: 46,
+                  );
+                },
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   widget.prompt.text,
@@ -90,7 +100,8 @@ class _DailyLivingCardState extends State<DailyLivingCard> {
                     onPressed: () => _respond(true),
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(0, 52),
-                      backgroundColor: AppColors.success,
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
                     ),
                     child: const Text('Did you do it? ✓'),
                   ),
@@ -98,7 +109,7 @@ class _DailyLivingCardState extends State<DailyLivingCard> {
               ],
             )
           else
-            const Text('Thank you! 🌟', style: TextStyle(fontSize: 16, color: AppColors.success)),
+            const Text('Thank you! 🌟', style: TextStyle(fontSize: 16, color: AppColors.primary, fontWeight: FontWeight.w600)),
         ],
       ),
     );

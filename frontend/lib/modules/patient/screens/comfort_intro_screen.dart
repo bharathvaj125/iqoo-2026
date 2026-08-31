@@ -4,6 +4,7 @@ import '../services/companion.dart';
 import '../services/local_store.dart';
 import 'package:smriti/core/theme.dart';
 import '../../../widgets/companion_widget.dart';
+import '../utils/patient_page_route.dart';
 import 'game_hub_screen.dart';
 
 /// Shown once per calendar day, before the first game — a short,
@@ -45,7 +46,7 @@ class _ComfortIntroScreenState extends State<ComfortIntroScreen> {
       if (!mounted) return;
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
+        PatientPageRoute(
           builder: (_) => GameHubScreen(profile: widget.profile),
         ),
       );

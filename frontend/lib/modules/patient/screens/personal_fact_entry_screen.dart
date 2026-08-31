@@ -4,6 +4,7 @@ import '../models/patient_models.dart';
 import '../services/companion.dart';
 import '../services/local_store.dart';
 import 'package:smriti/core/theme.dart';
+import '../widgets/companion_corner.dart';
 
 /// Facilitator-assisted capture of a single Personal Fact — spec's "build
 /// this first, works for every language" path: an ASHA or caregiver enters
@@ -116,61 +117,68 @@ class _PersonalFactEntryScreenState extends State<PersonalFactEntryScreen> {
         foregroundColor: Colors.white,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "This isn't a test — just jot down something they shared, "
-                "so the companion can bring it up warmly next time.",
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "This isn't a test — just jot down something they shared, "
+                    'so the companion can bring it up warmly next time.',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text('What kind of memory is this?',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: _category,
+                    items: _categories
+                        .map((c) => DropdownMenuItem(value: c, child: Text(_categoryLabelFor(c))))
+                        .toList(),
+                    onChanged: (v) => setState(() => _category = v ?? _category),
+                    decoration: const InputDecoration(border: OutlineInputBorder()),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Who / what is it about?',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _entityController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. daughter, childhood village, pet dog',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('What did they say?',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _valueController,
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. jasmine flowers, Sivasagar, Bhutu',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton(
+                    onPressed: _saving ? null : _save,
+                    child: Text(_saving ? 'Saving…' : 'Save this memory'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextButton(onPressed: _saving ? null : _skip, child: const Text('Not right now')),
+                ],
               ),
-              const SizedBox(height: 24),
-              const Text('What kind of memory is this?',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                // `initialValue` renamed from `value` in a newer Flutter than this
-                // project targets (3.27.1) — use the name that SDK still has.
-                value: _category,
-                items: _categories
-                    .map((c) => DropdownMenuItem(value: c, child: Text(_categoryLabelFor(c))))
-                    .toList(),
-                onChanged: (v) => setState(() => _category = v ?? _category),
-                decoration: const InputDecoration(border: OutlineInputBorder()),
-              ),
-              const SizedBox(height: 20),
-              const Text('Who / what is it about?',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _entityController,
-                decoration: const InputDecoration(
-                  hintText: 'e.g. daughter, childhood village, pet dog',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text('What did they say?',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _valueController,
-                decoration: const InputDecoration(
-                  hintText: 'e.g. jasmine flowers, Sivasagar, Bhutu',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 32),
-              ElevatedButton(
-                onPressed: _saving ? null : _save,
-                child: Text(_saving ? 'Saving…' : 'Save this memory'),
-              ),
-              const SizedBox(height: 12),
-              TextButton(onPressed: _saving ? null : _skip, child: const Text('Not right now')),
-            ],
-          ),
+            ),
+            const Positioned(
+              top: 6,
+              right: 12,
+              child: CompanionCorner(size: 52),
+            ),
+          ],
         ),
       ),
     );

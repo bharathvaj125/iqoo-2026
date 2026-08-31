@@ -5,8 +5,11 @@ import '../models/patient_models.dart';
 import '../services/local_store.dart';
 import '../services/companion.dart';
 import '../services/reminder_service.dart';
+import '../services/audio_cue_service.dart';
 import 'package:smriti/core/theme.dart';
 import '../widgets/reminder_task_overlay.dart';
+import '../widgets/companion_corner.dart';
+import '../../../widgets/companion_widget.dart';
 
 /// Adaptive CST (Cognitive Stimulation Therapy) game.
 /// Demonstrates the "Adaptive Difficulty Engine" from the architecture
@@ -126,9 +129,11 @@ class _GameScreenState extends State<GameScreen> {
         _matched[first] = true;
         _matched[index] = true;
       });
+      AudioCueService.instance.play('correct');
       Companion.instance.say('correct');
     } else {
       _mistakes++;
+      AudioCueService.instance.play('miss');
       Companion.instance.say('wrong');
       await Future.delayed(const Duration(milliseconds: 700));
       setState(() {
@@ -181,6 +186,7 @@ class _GameScreenState extends State<GameScreen> {
       newBadges.add(RewardBadge(badgeType: BadgeType.streak5Day, earnedAt: DateTime.now()));
     }
 
+    AudioCueService.instance.play('session_complete');
     if (!mounted) return;
     await Companion.instance.say('game_completed');
     await Future.delayed(const Duration(milliseconds: 400));
@@ -253,7 +259,24 @@ class _GameScreenState extends State<GameScreen> {
       body: Stack(
         children: [
           _cards.isEmpty
-              ? const Center(child: CircularProgressIndicator())
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const CompanionWidget(
+                        expression: CompanionExpression.neutral,
+                        size: 130,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Getting your game ready…',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: AppColors.primary,
+                            ),
+                      ),
+                    ],
+                  ),
+                )
               : Padding(
                   padding: const EdgeInsets.all(16),
                   child: GridView.builder(
@@ -271,7 +294,7 @@ class _GameScreenState extends State<GameScreen> {
                           duration: const Duration(milliseconds: 200),
                           decoration: BoxDecoration(
                             color: _matched[index]
-                                ? AppColors.success.withOpacity(0.25)
+                                ? AppColors.successAccent.withValues(alpha: 0.18)
                                 : (show ? Colors.white : AppColors.primary),
                             borderRadius: BorderRadius.circular(16),
                             boxShadow: const [
@@ -289,6 +312,18 @@ class _GameScreenState extends State<GameScreen> {
                     },
                   ),
                 ),
+          // Companion Corner — fades out during interruptions since ReminderTaskOverlay has its own companion
+          AnimatedOpacity(
+            opacity: _interrupted ? 0.0 : 1.0,
+            duration: const Duration(milliseconds: 200),
+            child: const Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CompanionCorner(size: 48),
+              ),
+            ),
+          ),
           if (_interrupted && ReminderService.instance.activeReminder != null)
             Positioned.fill(
               child: ReminderTaskOverlay(

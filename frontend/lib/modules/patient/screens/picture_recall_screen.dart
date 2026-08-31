@@ -7,8 +7,10 @@ import '../services/companion.dart';
 import '../services/companion_controller.dart';
 import '../services/local_store.dart';
 import '../services/reminder_service.dart';
+import '../services/audio_cue_service.dart';
 import 'package:smriti/core/theme.dart';
 import '../widgets/reminder_task_overlay.dart';
+import '../widgets/companion_corner.dart';
 
 class _RecallQuestion {
   final String id;
@@ -145,9 +147,6 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
   Future<void> _speakQuestion() async {
     final q = _questions[_questionIndex];
     final text = _hintLevel == 0 ? q.baseText : q.functionalText;
-    // .thinking no longer exists on the 4-value CompanionExpression enum
-    // (neutral/encouraging/gentle/listening) — .neutral is the closest fit
-    // for "posing a question" now that the more granular states are gone.
     await Companion.instance.sayCustom(text, CompanionExpression.neutral);
   }
 
@@ -155,8 +154,7 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
     if (ReminderService.instance.activeReminder != null && !_interrupted) {
       _snapshotAndInterrupt();
     } else if (ReminderService.instance.activeReminder == null && _interrupted) {
-      // Acknowledged elsewhere — handled by overlay's onAcknowledged too,
-      // this covers the edge case of the listener firing first.
+      // Acknowledged elsewhere
     }
   }
 
@@ -180,11 +178,6 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
 
   void _onReminderAcknowledged() {
     setState(() => _interrupted = false);
-    // Snapshot already cleared on restore path; here we simply continue —
-    // state was never destroyed since the overlay sits on top of the
-    // same widget tree, but we explicitly reloaded from the persisted
-    // snapshot in _restoreOrStart for the "app was killed" case, so this
-    // covers the common in-memory case cleanly too.
   }
 
   Future<void> _logAndAdvance(ResponseMark mark, int hintLevelUsed) async {
@@ -219,6 +212,7 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
 
     if (option == q.correct) {
       setState(() => _busy = true);
+      AudioCueService.instance.play('correct');
       await Companion.instance.say('correct');
       final mark = _hintLevel == 0 ? ResponseMark.independent : ResponseMark.hint;
       await Future.delayed(const Duration(milliseconds: 600));
@@ -230,6 +224,7 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
 
     // Wrong tap — escalate the rephrase ladder. Never say "wrong".
     setState(() => _busy = true);
+    AudioCueService.instance.play('miss');
     if (_hintLevel == 0) {
       await Companion.instance.say('rephrase_soft');
       setState(() {
@@ -282,6 +277,7 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
       newBadges.add(RewardBadge(badgeType: BadgeType.streak10Day, earnedAt: DateTime.now()));
     }
 
+    AudioCueService.instance.play('session_complete');
     if (!mounted) return;
     await Companion.instance.say('game_completed');
     await Future.delayed(const Duration(milliseconds: 400));
@@ -396,15 +392,15 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
                           duration: const Duration(milliseconds: 250),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(18),
-                            color: highlight ? AppColors.accent.withOpacity(0.25) : Colors.white,
+                            color: highlight ? AppColors.accent.withValues(alpha: 0.25) : Colors.white,
                             border: Border.all(
-                              color: highlight ? AppColors.accent : AppColors.primary.withOpacity(0.25),
+                              color: highlight ? AppColors.accent : AppColors.primary.withValues(alpha: 0.25),
                               width: highlight ? 3 : 1.5,
                             ),
                             boxShadow: [
                               BoxShadow(
                                 color: highlight
-                                    ? AppColors.accent.withOpacity(0.4)
+                                    ? AppColors.accent.withValues(alpha: 0.4)
                                     : AppColors.cardShadow,
                                 blurRadius: highlight ? 12 : 4,
                               ),
@@ -428,6 +424,17 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
                     ),
                   ),
                 ],
+              ),
+            ),
+          ),
+          AnimatedOpacity(
+            opacity: _interrupted ? 0.0 : 1.0,
+            duration: const Duration(milliseconds: 200),
+            child: const Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: CompanionCorner(size: 48),
               ),
             ),
           ),

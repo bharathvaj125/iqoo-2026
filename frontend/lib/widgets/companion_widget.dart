@@ -115,7 +115,7 @@ class _CompanionPainter extends CustomPainter {
     double glowIntensity = expression == CompanionExpression.listening ? 0.8 : 0.4;
     double glowRadius = (w * 0.45) + (glowValue * w * 0.05);
     final glowPaint = Paint()
-      ..color = const Color(0xFFC7E1E7).withOpacity(glowIntensity)
+      ..color = const Color(0xFFC7E1E7).withValues(alpha: glowIntensity)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, w * 0.15);
     canvas.drawCircle(Offset(w / 2, h / 2), glowRadius, glowPaint);
 
@@ -124,8 +124,8 @@ class _CompanionPainter extends CustomPainter {
 
     // 3. Cloud Body Silhouette
     final bodyPaint = Paint()..color = const Color(0xFF8FB9C4)..style = PaintingStyle.fill;
-    final depthPaint = Paint()..color = const Color(0xFFC7E1E7).withOpacity(0.55)..style = PaintingStyle.fill;
-    final baseShadePaint = Paint()..color = const Color(0xFF6FA0AE).withOpacity(0.35)..style = PaintingStyle.fill;
+    final depthPaint = Paint()..color = const Color(0xFFC7E1E7).withValues(alpha: 0.55)..style = PaintingStyle.fill;
+    final baseShadePaint = Paint()..color = const Color(0xFF6FA0AE).withValues(alpha: 0.35)..style = PaintingStyle.fill;
 
     Path cloudPath = _buildCloudPath(w, h);
     
@@ -154,7 +154,7 @@ class _CompanionPainter extends CustomPainter {
 
   void _drawMistParticles(Canvas canvas, double w, double h) {
     final particlePaint = Paint()
-      ..color = const Color(0xFFC7E1E7).withOpacity(0.4)
+      ..color = const Color(0xFFC7E1E7).withValues(alpha: 0.4)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4.0);
       
     // 3 particles, staggered
@@ -164,7 +164,7 @@ class _CompanionPainter extends CustomPainter {
       double x = w * 0.5 + sin((t + i) * pi * 4) * (w * 0.3);
       double opacity = sin(t * pi); // fade in and out
       
-      particlePaint.color = const Color(0xFFC7E1E7).withOpacity(0.4 * opacity);
+      particlePaint.color = const Color(0xFFC7E1E7).withValues(alpha: 0.4 * opacity);
       canvas.drawCircle(Offset(x, y), w * 0.04, particlePaint);
     }
   }
@@ -223,7 +223,7 @@ class _CompanionPainter extends CustomPainter {
     final cy = h * 0.58; // Center of face
     
     // Blushes
-    final blushPaint = Paint()..color = const Color(0xFFE6A48C).withOpacity(0.5);
+    final blushPaint = Paint()..color = const Color(0xFFE6A48C).withValues(alpha: 0.5);
     canvas.drawOval(Rect.fromCenter(center: Offset(cx - w * 0.18, cy + h * 0.06), width: w * 0.12, height: h * 0.06), blushPaint);
     canvas.drawOval(Rect.fromCenter(center: Offset(cx + w * 0.18, cy + h * 0.06), width: w * 0.12, height: h * 0.06), blushPaint);
 
