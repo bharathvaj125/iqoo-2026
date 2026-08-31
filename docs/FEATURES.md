@@ -5,6 +5,50 @@ built separately by a teammate and merged in). Everything below has been run and
 live, not just written — see `frontend/README.md` / `backend/README.md` for how to run it
 yourself.
 
+## Changelog (Track C: auth, design system, bug audit)
+
+- **Passwordless email auth, real for the first time.** ASHA/Caregiver sign-in now calls
+  a real backend (`POST /api/auth/login` finds-or-creates a `User` by email, no password
+  field anywhere; `POST /api/auth/role` sets ASHA/Caregiver once, 400s if already set). The
+  JWT persists across restarts until explicit sign-out. Patient module's no-login flow is
+  untouched. The old instant role picker still exists for internal testing, now gated
+  behind `kDebugMode` (`/debug/roles`) so it's unreachable in a release build.
+  - **Bug found + fixed**: `patients.py` compared `current_user.role.value == "asha"`,
+    which throws once `role` became nullable (a fresh account has no role until it
+    completes the one-time picker). Changed to a null-safe enum comparison.
+  - **Bug found + fixed**: the web frontend's login request was blocked by the browser's
+    CORS policy — the backend had no `CORSMiddleware`. Added one.
+- **Locked design system applied across every ASHA/Caregiver screen**: the specified hex
+  palette, Poppins/Noto Sans typography (with Bengali/Meetei Mayek fallbacks for Assamese/
+  Manipuri) bundled as local TTFs rather than fetched at runtime, 20px/28px+ size floors,
+  no red anywhere (the accent gold is deliberately reused for the one "warning" state the
+  4-color palette doesn't otherwise have — see `AppColors` doc comment in
+  `lib/core/theme.dart`). Added a static idle `ModuleCompanionHeader` to both modules'
+  headers (reusing the existing `CompanionWidget`, not rebuilt), ~280ms fade+slide screen
+  transitions, and skeleton/pressable-scale infrastructure (an audit found every existing
+  tap target already had real Material press feedback, so nothing needed retrofitting).
+  - **Bug found + fixed**: the Caregiver dashboard's "Adherence by type" rows wrapped
+    category labels ugly (e.g. "Appoint\nment") once body text hit the new 20px floor,
+    because the label sat in a fixed-width `SizedBox`. Rewrote that row as a two-line
+    layout (label+percentage over a full-width bar) that scales with font size and long/
+    translated words instead of fighting them.
+  - Verified with a full manual sweep of every ASHA/Caregiver screen at both phone and
+    tablet viewport sizes — no other overflow found.
+- **Bug audit (ASHA/Caregiver, read-only pass)**: checked every `.first`/`.last`/
+  `firstWhere`/division site in `lib/modules/asha/` and `lib/modules/caregiver/` for
+  fresh-install/empty-state crashes, and every `Navigator.push`/`pop` for broken routing.
+  No additional bugs found — empty states were already handled deliberately throughout
+  (`"None scheduled"`, `"No rounds logged yet"`, `"No patients on your roster yet."`,
+  adherence rate defaulting to 1.0 rather than dividing by zero), and the two unguarded
+  `firstWhere` calls on patient/reminder IDs are structurally safe: neither module has a
+  delete-patient or delete-reminder path wired into its UI, so no stale ID can reach them.
+  This is a point-in-time result — re-run it if delete functionality is ever added.
+- **Docs corrected**: two lines below were stale as of this changelog and have been
+  updated — the dev role picker is no longer the app's real entry point (real auth is),
+  and "not wired to the backend" was true for auth before this work and is now false for
+  auth specifically (session/reminder/patient data is still local-only; see "Not done
+  yet").
+
 ## Backend (FastAPI)
 
 - JWT auth (`/api/auth/login`)
@@ -107,8 +151,11 @@ merge" below); everything else below was verified working as originally built.
 
 ## Cross-cutting
 
-- Dev-only role picker as the app's entry point, standing in for real JWT login until
-  that's wired up
+- Real passwordless email auth (find-or-create by email, JWT persisted until sign-out,
+  one-time ASHA/Caregiver role selection) is the app's entry point for those two modules.
+  The old instant role picker still exists for internal testing, gated behind
+  `kDebugMode` so a release build never shows it. The Patient module keeps its separate,
+  unauthenticated entry — that was an explicit non-goal, not an oversight
 - Local persistence via `LocalStore` (shared_preferences today) — a deliberate stand-in
   for the on-device SQLite store called for in the tech-stack doc; swapping the storage
   backend later won't touch any screen code
@@ -120,18 +167,35 @@ merge" below); everything else below was verified working as originally built.
   Caregiver, `AppTheme.elder` (larger type, taller tap targets) for the Patient module —
   same palette, chosen for how ageing and dementia actually change vision and attention
   (see the doc comment on `AppColors` in `lib/core/theme.dart`), not for looks
-- 17 passing tests (scoring rules and widget flows); `flutter analyze` clean
+- 29 passing tests (scoring rules, auth, localization, and widget flows); `flutter
+  analyze` clean
 - Verified end-to-end in a live browser run, not just compiled
 
 ## Not done yet
 
-- Not wired to the backend (frontend is still local-only)
+- Auth is wired to the backend; everything else (patients, sessions, reminders, sync) is
+  still frontend-only — the backend has matching REST routes and SQLAlchemy models
+  (see "Backend" above) but the Flutter app doesn't call them yet for anything but login
 - No real on-device SQLite (see LocalStore note above)
-- **The Patient module doesn't share data with ASHA/Caregiver yet.** It keeps its own
-  local store, separate from `AshaRepository`/`CaregiverRepository`/`AlertStore` — a
-  session played in the Patient module doesn't show up on the ASHA roster or feed the
-  caregiver's adherence figures. Model field names were deliberately kept aligned across
-  both sides so this shouldn't require renaming anything when it's built
+- **The Patient module doesn't share data with ASHA/Caregiver, and can't yet — there's no
+  identity to join on.** Investigated for Track C: the two sides use two entirely separate
+  `LocalStore` classes (different files, different key namespaces — `lib/core/local_db/
+  local_store.dart` for ASHA/Caregiver vs. `lib/modules/patient/services/local_store.dart`
+  for Patient) with no shared code path. The Patient module's `logGameSession`/
+  `logResponseRecord`/`logReminderAck` calls already queue real records intended for sync
+  (model field names were deliberately kept aligned across both sides for this), but their
+  readers (`getPendingSessions`/`getResponseRecords`/`getReminderAcks`) are never called by
+  anything — they're write-only queues today. The ASHA `Sync` screen's outbox is real UI
+  wired to a real state machine (queued → syncing → synced), but it only drains
+  ASHA-originated entries; it has no code path that reads a Patient device's queue at all.
+  The deeper blocker: in a real deployment the Patient module runs on the patient's own
+  device with no login, so nothing tells it *which* ASHA-roster patient (`p1`/`p2`/`p3`,
+  seeded in `AshaRepository`) it represents — the Patient module's own demo profile IDs
+  collide with those strings by coincidence, not by design. Closing this gap needs a
+  pairing/identity step (QR code, PIN, or similar) assigning a Patient device to a roster
+  patient before a sync payload can be attributed to anyone; building that felt like it
+  deserved its own reviewed design rather than a same-device demo shortcut bolted onto the
+  Sync button, so it's documented here rather than faked
 - Direct voice capture (Bhashini/AI4Bharat STT) for the personal fact bank is deferred,
   per the patient spec itself — additive only, never blocking the facilitator-assisted
   path that's built
