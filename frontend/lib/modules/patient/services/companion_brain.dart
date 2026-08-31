@@ -19,15 +19,15 @@ class CompanionBrain {
   static const Map<String, CompanionReply> _situations = {
     'greeting': CompanionReply(
       "Hi! I'm your little memory companion. Let's play a game together!",
-      CompanionExpression.happy,
+      CompanionExpression.encouraging,
     ),
     'question': CompanionReply(
       "Do you remember what we did yesterday? Take your time.",
-      CompanionExpression.thinking,
+      CompanionExpression.listening,
     ),
     'correct': CompanionReply(
       "Wah! That's correct! You're doing so well!",
-      CompanionExpression.excited,
+      CompanionExpression.encouraging,
     ),
     'wrong': CompanionReply(
       "That's okay, let's try that one again together.",
@@ -35,35 +35,35 @@ class CompanionBrain {
     ),
     'memory_exercise': CompanionReply(
       "Let's use our memory now. Look carefully and take your time.",
-      CompanionExpression.thinking,
+      CompanionExpression.listening,
     ),
     'user_confused': CompanionReply(
       "It's alright, no hurry at all. I'm right here with you.",
-      CompanionExpression.calm,
+      CompanionExpression.gentle,
     ),
     'game_completed': CompanionReply(
       "Hooray! You finished the game! I'm so proud of you!",
-      CompanionExpression.celebrating,
+      CompanionExpression.encouraging,
     ),
     'reminder': CompanionReply(
       "Aita, it's time for your medicine and a glass of water.",
-      CompanionExpression.calm,
+      CompanionExpression.gentle,
     ),
     'who_are_you': CompanionReply(
       "Hi! I'm your little memory companion. Let's play a game together!",
-      CompanionExpression.happy,
+      CompanionExpression.encouraging,
     ),
 
     // --- Comfort-building intro (spec: framed as playing/chatting,
     // never as a test) ---
     'comfort_intro_1': CompanionReply(
       "Hello! I'm so happy you're here today.",
-      CompanionExpression.happy,
+      CompanionExpression.encouraging,
     ),
     'comfort_intro_2': CompanionReply(
       "We're just going to play and chat together for a little while, "
           "nice and slow, no hurry at all.",
-      CompanionExpression.calm,
+      CompanionExpression.gentle,
     ),
     'comfort_intro_3': CompanionReply(
       "Whenever you're ready, tap the button and let's begin!",
@@ -81,23 +81,23 @@ class CompanionBrain {
     ),
     'rephrase_highlight': CompanionReply(
       "Here, look right here — that's the one.",
-      CompanionExpression.calm,
+      CompanionExpression.gentle,
     ),
 
     // --- Reminder interrupt / resume ---
     'reminder_task_mode': CompanionReply(
       "One moment — I have something important to tell you.",
-      CompanionExpression.calm,
+      CompanionExpression.gentle,
     ),
     'reminder_ack_thanks': CompanionReply(
       "Thank you! Let's get back to our game.",
-      CompanionExpression.happy,
+      CompanionExpression.encouraging,
     ),
 
     // --- Streak language (never scolding on a broken streak) ---
     'streak_continue': CompanionReply(
       "Wonderful — you're keeping your streak going!",
-      CompanionExpression.excited,
+      CompanionExpression.encouraging,
     ),
     'streak_reset': CompanionReply(
       "That's alright — let's start a new one today!",
@@ -105,38 +105,38 @@ class CompanionBrain {
     ),
     'badge_earned': CompanionReply(
       "You earned a little star for that — well done!",
-      CompanionExpression.celebrating,
+      CompanionExpression.encouraging,
     ),
 
     // --- Session end ---
     'session_end': CompanionReply(
       "That was lovely spending time with you today. See you again soon!",
-      CompanionExpression.happy,
+      CompanionExpression.encouraging,
     ),
 
     'resume_game': CompanionReply(
       "Now, where were we… let's continue!",
-      CompanionExpression.happy,
+      CompanionExpression.encouraging,
     ),
 
     // --- Daily Living Guidance ---
     'daily_living_praise': CompanionReply(
       "Wonderful, thank you for taking care of yourself!",
-      CompanionExpression.celebrating,
+      CompanionExpression.encouraging,
     ),
     'daily_living_gentle': CompanionReply(
       "That's alright — maybe next time. I'll remind you again later.",
-      CompanionExpression.calm,
+      CompanionExpression.gentle,
     ),
 
     // --- Personalization loop (Phase 2 — Personal Fact Bank) ---
     'casual_fact_prompt': CompanionReply(
       "Before we play, tell me something — I love hearing about your life.",
-      CompanionExpression.happy,
+      CompanionExpression.encouraging,
     ),
     'fact_saved_thanks': CompanionReply(
       "Thank you for sharing that with me! I'll remember it.",
-      CompanionExpression.happy,
+      CompanionExpression.encouraging,
     ),
     'reminiscence_no_facts_yet': CompanionReply(
       "We're still getting to know each other! Let's play a little more, "
@@ -158,11 +158,11 @@ class CompanionBrain {
     if (lower.contains('who are you')) return forSituation('who_are_you');
     if (lower.contains('how are you')) {
       return const CompanionReply(
-          "I'm happy today! How are you feeling?", CompanionExpression.happy);
+          "I'm happy today! How are you feeling?", CompanionExpression.encouraging);
     }
     if (lower.contains('game') || lower.contains('play')) {
       return const CompanionReply(
-          "Yes! Let's go play a memory game together!", CompanionExpression.excited);
+          "Yes! Let's go play a memory game together!", CompanionExpression.encouraging);
     }
     if (lower.contains('medicine') || lower.contains('water')) {
       return forSituation('reminder');
@@ -171,6 +171,6 @@ class CompanionBrain {
       return forSituation('user_confused');
     }
     return const CompanionReply(
-        "That's nice! Tell me more, I'm listening.", CompanionExpression.calm);
+        "That's nice! Tell me more, I'm listening.", CompanionExpression.gentle);
   }
 }

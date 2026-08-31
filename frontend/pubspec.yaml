@@ -22,12 +22,8 @@ dependencies:
   audioplayers: ^6.1.0
   uuid: ^4.5.1
   shared_preferences: ^2.3.3
-  # Patient module: companion speech + the Kuzu 3D character.
-  # flutter_3d_controller has no Windows support — run the patient module on
-  # web, Android, iOS or macOS. It falls back to the hand-drawn companion
-  # anywhere the 3D viewer can't initialise.
+  # Patient module: companion speech
   flutter_tts: ^4.0.2
-  flutter_3d_controller: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -42,4 +38,3 @@ flutter:
   assets:
     - assets/audio/
     - assets/images/
-    - assets/character/

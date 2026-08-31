@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smriti/core/theme.dart';
 import '../services/companion.dart';
-import '../widgets/companion_character.dart';
+import '../../../widgets/companion_widget.dart';
 import 'profile_select_screen.dart';
 
 /// First thing the elder sees when the app opens — the companion
@@ -48,7 +48,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         child: Column(
           children: [
             const Spacer(flex: 2),
-            CompanionCharacter(controller: Companion.instance.controller, size: 250),
+            ListenableBuilder(
+              listenable: Companion.instance.controller,
+              builder: (context, _) {
+                return CompanionWidget(
+                  expression: Companion.instance.controller.expression,
+                  size: 250,
+                );
+              },
+            ),
             const SizedBox(height: 28),
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 180),

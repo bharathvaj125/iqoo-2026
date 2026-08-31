@@ -172,7 +172,10 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
     if (_rounds.isEmpty) return;
     final r = _rounds[_roundIndex];
     final text = _hintLevel == 0 ? r.baseText : r.functionalText;
-    await Companion.instance.sayCustom(text, CompanionExpression.thinking);
+    // .thinking no longer exists on the 4-value CompanionExpression enum
+    // (neutral/encouraging/gentle/listening) — .neutral is the closest fit
+    // for "posing a question" now that the more granular states are gone.
+    await Companion.instance.sayCustom(text, CompanionExpression.neutral);
   }
 
   void _onReminderChange() {

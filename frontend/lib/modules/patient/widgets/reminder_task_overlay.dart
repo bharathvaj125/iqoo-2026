@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../models/patient_models.dart';
 import '../services/companion.dart';
-import '../services/companion_controller.dart';
 import '../services/reminder_service.dart';
 import 'package:smriti/core/theme.dart';
-import 'companion_character.dart';
+import '../../../widgets/companion_widget.dart';
 
 /// Shown on top of whatever the patient was doing when a reminder fires.
 /// Per the spec: the game is paused underneath (the caller is responsible
@@ -46,7 +45,7 @@ class _ReminderTaskOverlayState extends State<ReminderTaskOverlay> {
     // companion line in this prototype.
     await Companion.instance.sayCustom(
       widget.reminder.title,
-      CompanionExpression.calm,
+      CompanionExpression.gentle,
     );
   }
 
@@ -81,9 +80,14 @@ class _ReminderTaskOverlayState extends State<ReminderTaskOverlay> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CompanionCharacter(
-                controller: Companion.instance.controller,
-                size: 190,
+              ListenableBuilder(
+                listenable: Companion.instance.controller,
+                builder: (context, _) {
+                  return CompanionWidget(
+                    expression: Companion.instance.controller.expression,
+                    size: 160,
+                  );
+                },
               ),
               const SizedBox(height: 16),
               CircleAvatar(

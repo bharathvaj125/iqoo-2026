@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smriti/core/locale_controller.dart';
 import 'package:smriti/core/theme.dart';
+import 'package:smriti/debug/companion_debug_screen.dart';
 import 'package:smriti/l10n_gen/app_localizations.dart';
 import 'package:smriti/modules/asha/asha_home.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
@@ -39,6 +40,9 @@ class SmritiApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
           home: const RoleSelectScreen(),
+          routes: {
+            '/debug/companion': (context) => const CompanionDebugScreen(),
+          },
         );
       },
     );
@@ -100,6 +104,15 @@ class RoleSelectScreen extends StatelessWidget {
                     ),
                     icon: const Icon(Icons.self_improvement_rounded),
                     label: const Text('Patient'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).pushNamed('/debug/companion'),
+                    icon: const Icon(Icons.bug_report_rounded),
+                    label: const Text('Debug Companion Widget'),
                   ),
                 ),
               ],

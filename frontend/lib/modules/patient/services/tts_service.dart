@@ -31,29 +31,22 @@ class TtsService {
   /// platform — useful when demoing on web/desktop without TTS.
   Future<void> speak(String text, CompanionController controller) async {
     await _ensureInit();
-    controller.startMouthLoop();
 
     bool completed = false;
     _tts.setCompletionHandler(() {
       completed = true;
-      controller.stopMouthLoop();
     });
     _tts.setErrorHandler((msg) {
       completed = true;
-      controller.stopMouthLoop();
     });
 
     try {
       final result = await _tts.speak(text);
       if (result != 1) {
-        // Engine unavailable — estimate a speaking duration instead
-        // so the mouth animation still plays for the demo.
         await Future.delayed(_estimateDuration(text));
-        if (!completed) controller.stopMouthLoop();
       }
     } catch (_) {
       await Future.delayed(_estimateDuration(text));
-      if (!completed) controller.stopMouthLoop();
     }
   }
 

@@ -145,7 +145,10 @@ class _PictureRecallScreenState extends State<PictureRecallScreen> {
   Future<void> _speakQuestion() async {
     final q = _questions[_questionIndex];
     final text = _hintLevel == 0 ? q.baseText : q.functionalText;
-    await Companion.instance.sayCustom(text, CompanionExpression.thinking);
+    // .thinking no longer exists on the 4-value CompanionExpression enum
+    // (neutral/encouraging/gentle/listening) — .neutral is the closest fit
+    // for "posing a question" now that the more granular states are gone.
+    await Companion.instance.sayCustom(text, CompanionExpression.neutral);
   }
 
   void _onReminderChange() {

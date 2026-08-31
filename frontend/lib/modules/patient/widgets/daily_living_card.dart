@@ -36,7 +36,7 @@ class _DailyLivingCardState extends State<DailyLivingCard> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Companion.instance.sayCustom(widget.prompt.text, CompanionExpression.calm);
+      Companion.instance.sayCustom(widget.prompt.text, CompanionExpression.gentle);
     });
   }
 
