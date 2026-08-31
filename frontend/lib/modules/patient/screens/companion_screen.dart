@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/companion.dart';
-import '../widgets/companion_character.dart';
+import '../../../widgets/companion_widget.dart';
 import 'package:smriti/core/theme.dart';
 
 /// Demo screen for the full pipeline described in the brief:
@@ -53,7 +53,15 @@ class _CompanionScreenState extends State<CompanionScreen> {
               '3D Kuzu is with you',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
-            CompanionCharacter(controller: companion.controller, size: 220),
+            ListenableBuilder(
+              listenable: companion.controller,
+              builder: (context, _) {
+                return CompanionWidget(
+                  expression: companion.controller.expression,
+                  size: 220,
+                );
+              },
+            ),
             const SizedBox(height: 12),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),

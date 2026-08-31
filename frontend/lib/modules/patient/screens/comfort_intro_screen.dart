@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../services/companion.dart';
 import '../services/local_store.dart';
 import 'package:smriti/core/theme.dart';
-import '../widgets/companion_character.dart';
+import '../../../widgets/companion_widget.dart';
 import 'game_hub_screen.dart';
 
 /// Shown once per calendar day, before the first game — a short,
@@ -66,9 +66,14 @@ class _ComfortIntroScreenState extends State<ComfortIntroScreen> {
         child: Column(
           children: [
             const Spacer(flex: 2),
-            CompanionCharacter(
-              controller: Companion.instance.controller,
-              size: 240,
+            ListenableBuilder(
+              listenable: Companion.instance.controller,
+              builder: (context, _) {
+                return CompanionWidget(
+                  expression: Companion.instance.controller.expression,
+                  size: 240,
+                );
+              },
             ),
             const SizedBox(height: 24),
             AnimatedSwitcher(
