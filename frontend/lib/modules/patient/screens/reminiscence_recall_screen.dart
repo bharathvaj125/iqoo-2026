@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 
 import '../models/patient_models.dart';
 import '../services/companion.dart';
-import '../services/companion_controller.dart';
 import '../services/local_store.dart';
 import '../services/reminder_service.dart';
+import '../services/audio_cue_service.dart';
 import 'package:smriti/core/theme.dart';
 import '../widgets/reminder_task_overlay.dart';
+import '../widgets/companion_corner.dart';
+import '../../../widgets/companion_widget.dart';
 
 /// Regional distractor bank keyed by state-level cultural pack (spec MVP:
 /// "match content to the patient's registered state-level cultural pack").
@@ -116,9 +118,6 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
       await Future.delayed(const Duration(milliseconds: 300));
       await _speakQuestion();
     } else {
-      // Must go through setState — this assignment happens after the first
-      // build completes, so writing the field directly never triggers a
-      // rebuild and the options grid is left showing its initial empty list.
       setState(() => _shownOptions = _optionsFor(0, 0));
       WidgetsBinding.instance.addPostFrameCallback((_) => _speakQuestion());
     }
@@ -128,9 +127,6 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
     }
   }
 
-  /// "What did your daughter bring you last time?" style naming form vs.
-  /// an easier functional/descriptive rephrase, mirroring Picture Recall's
-  /// ladder but built from the fact's own category/entity.
   String _questionFor(PersonalFact f, {required bool easy}) {
     final entity = f.entity;
     switch (f.category) {
@@ -172,9 +168,6 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
     if (_rounds.isEmpty) return;
     final r = _rounds[_roundIndex];
     final text = _hintLevel == 0 ? r.baseText : r.functionalText;
-    // .thinking no longer exists on the 4-value CompanionExpression enum
-    // (neutral/encouraging/gentle/listening) — .neutral is the closest fit
-    // for "posing a question" now that the more granular states are gone.
     await Companion.instance.sayCustom(text, CompanionExpression.neutral);
   }
 
@@ -239,6 +232,7 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
 
     if (option == r.fact.value) {
       setState(() => _busy = true);
+      AudioCueService.instance.play('correct');
       await Companion.instance.say('correct');
       final mark = _hintLevel == 0 ? ResponseMark.independent : ResponseMark.hint;
       await Future.delayed(const Duration(milliseconds: 600));
@@ -248,9 +242,8 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
       return;
     }
 
-    // Wrong tap — same never-say-wrong rephrase ladder as Picture Recall,
-    // escalating on the first miss per the spec's recognition-question rule.
     setState(() => _busy = true);
+    AudioCueService.instance.play('miss');
     if (_hintLevel == 0) {
       await Companion.instance.say('rephrase_soft');
       setState(() {
@@ -300,6 +293,7 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
       newBadges.add(RewardBadge(badgeType: BadgeType.streak10Day, earnedAt: DateTime.now()));
     }
 
+    AudioCueService.instance.play('session_complete');
     if (!mounted) return;
     await Companion.instance.say('game_completed');
     await Future.delayed(const Duration(milliseconds: 400));
@@ -376,7 +370,24 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
         foregroundColor: Colors.white,
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CompanionWidget(
+                    expression: CompanionExpression.neutral,
+                    size: 130,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Getting your memories ready…',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: AppColors.primary,
+                        ),
+                  ),
+                ],
+              ),
+            )
           : _rounds.isEmpty
               ? _buildEmptyState(context)
               : _buildGame(context),
@@ -488,6 +499,17 @@ class _ReminiscenceRecallScreenState extends State<ReminiscenceRecallScreen> {
                   ),
                 ),
               ],
+            ),
+          ),
+        ),
+        AnimatedOpacity(
+          opacity: _interrupted ? 0.0 : 1.0,
+          duration: const Duration(milliseconds: 200),
+          child: const Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CompanionCorner(size: 48),
             ),
           ),
         ),

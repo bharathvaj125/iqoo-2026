@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/patient_models.dart';
 import '../services/local_store.dart';
 import 'package:smriti/core/theme.dart';
-import '../widgets/streak_badge_bar.dart';
 import '../widgets/daily_living_card.dart';
+import '../widgets/companion_corner.dart';
+import '../utils/patient_page_route.dart';
 import 'comfort_intro_screen.dart';
 import 'game_hub_screen.dart';
 import 'reminders_screen.dart';
@@ -56,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (offerCasualPrompt && mounted) {
       await Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => PersonalFactEntryScreen(profile: widget.profile)),
+        PatientPageRoute(builder: (_) => PersonalFactEntryScreen(profile: widget.profile)),
       );
     }
     if (!mounted) return;
@@ -66,12 +67,12 @@ class _HomeScreenState extends State<HomeScreen> {
     if (seenToday) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => GameHubScreen(profile: widget.profile)),
+        PatientPageRoute(builder: (_) => GameHubScreen(profile: widget.profile)),
       );
     } else {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => ComfortIntroScreen(profile: widget.profile)),
+        PatientPageRoute(builder: (_) => ComfortIntroScreen(profile: widget.profile)),
       );
     }
   }
@@ -80,19 +81,30 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            _buildHeader(context),
-            if (_dueDailyLiving != null)
-              DailyLivingCard(
-                patientId: widget.profile.id,
-                prompt: _dueDailyLiving!,
-                onDismissed: () => setState(() => _dueDailyLiving = null),
-              ),
-            _buildGoalBanner(context),
-            StreakBadgeBar(patientId: widget.profile.id),
-            const SizedBox(height: 8),
-            Expanded(child: _buildTileGrid(context)),
+            Column(
+              children: [
+                _buildHeader(context),
+                if (_dueDailyLiving != null)
+                  DailyLivingCard(
+                    patientId: widget.profile.id,
+                    prompt: _dueDailyLiving!,
+                    onDismissed: () => setState(() => _dueDailyLiving = null),
+                  ),
+                _buildGoalBanner(context),
+                // Note: StreakBadgeBar is removed from visible patient build tree
+                // per design system ("no score/streak/counter UI visible in Patient module").
+                // Badge/streak logic in LocalStore continues tracking in background.
+                const SizedBox(height: 8),
+                Expanded(child: _buildTileGrid(context)),
+              ],
+            ),
+            const Positioned(
+              top: 10,
+              right: 76, // Sits comfortably next to the SOS button without overlap
+              child: CompanionCorner(size: 50),
+            ),
           ],
         ),
       ),
@@ -113,12 +125,13 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           // Always-visible distress / SOS button — never buried in a menu.
+          // In Patient module, styled with AppColors.accent (gold) per "no red in Patient module" rule.
           GestureDetector(
             onTap: () => showDistressDialog(context, widget.profile),
             child: Container(
               padding: const EdgeInsets.all(14),
               decoration: const BoxDecoration(
-                color: AppColors.distress,
+                color: AppColors.accent,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.sos, color: Colors.white, size: 28),
@@ -134,9 +147,9 @@ class _HomeScreenState extends State<HomeScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.accent.withOpacity(0.15),
+        color: AppColors.accent.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.accent.withOpacity(0.4)),
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
@@ -176,10 +189,10 @@ class _HomeScreenState extends State<HomeScreen> {
           _HomeTile(
             icon: Icons.notifications_active,
             label: 'Reminders',
-            color: AppColors.success,
+            color: AppColors.successAccent,
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const RemindersScreen()),
+              PatientPageRoute(builder: (_) => const RemindersScreen()),
             ),
           ),
           _HomeTile(
@@ -188,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: AppColors.accent,
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
+              PatientPageRoute(
                   builder: (_) => FamilyScreen(profile: widget.profile)),
             ),
           ),
@@ -198,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: const Color(0xFF7B5EA7),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => const CompanionScreen()),
+              PatientPageRoute(builder: (_) => const CompanionScreen()),
             ),
           ),
         ],
@@ -207,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _HomeTile extends StatelessWidget {
+class _HomeTile extends StatefulWidget {
   final IconData icon;
   final String label;
   final Color color;
@@ -221,30 +234,47 @@ class _HomeTile extends StatelessWidget {
   });
 
   @override
+  State<_HomeTile> createState() => _HomeTileState();
+}
+
+class _HomeTileState extends State<_HomeTile> {
+  double _scale = 1.0;
+
+  @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(24),
-      elevation: 3,
-      shadowColor: AppColors.cardShadow,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CircleAvatar(
-              radius: 36,
-              backgroundColor: color.withOpacity(0.15),
-              child: Icon(icon, color: color, size: 40),
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _scale = 0.96),
+      onTapUp: (_) => setState(() => _scale = 1.0),
+      onTapCancel: () => setState(() => _scale = 1.0),
+      child: AnimatedScale(
+        scale: _scale,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOutCubic,
+        child: Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          elevation: 3,
+          shadowColor: AppColors.cardShadow,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24),
+            onTap: widget.onTap,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 36,
+                  backgroundColor: widget.color.withValues(alpha: 0.15),
+                  child: Icon(widget.icon, color: widget.color, size: 40),
+                ),
+                const SizedBox(height: 14),
+                Text(widget.label,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontSize: 20)),
+              ],
             ),
-            const SizedBox(height: 14),
-            Text(label,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontSize: 20)),
-          ],
+          ),
         ),
       ),
     );

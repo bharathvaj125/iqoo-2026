@@ -22,7 +22,7 @@ class CompanionBrain {
       CompanionExpression.encouraging,
     ),
     'question': CompanionReply(
-      "Do you remember what we did yesterday? Take your time.",
+      'Do you remember what we did yesterday? Take your time.',
       CompanionExpression.listening,
     ),
     'correct': CompanionReply(
@@ -31,7 +31,7 @@ class CompanionBrain {
     ),
     'wrong': CompanionReply(
       "That's okay, let's try that one again together.",
-      CompanionExpression.encouraging,
+      CompanionExpression.gentle,
     ),
     'memory_exercise': CompanionReply(
       "Let's use our memory now. Look carefully and take your time.",
@@ -62,7 +62,7 @@ class CompanionBrain {
     ),
     'comfort_intro_2': CompanionReply(
       "We're just going to play and chat together for a little while, "
-          "nice and slow, no hurry at all.",
+          'nice and slow, no hurry at all.',
       CompanionExpression.gentle,
     ),
     'comfort_intro_3': CompanionReply(
@@ -73,11 +73,11 @@ class CompanionBrain {
     // --- Rephrase ladder acknowledgements (never "wrong") ---
     'rephrase_soft': CompanionReply(
       "Let's look again, take your time.",
-      CompanionExpression.encouraging,
+      CompanionExpression.gentle,
     ),
     'rephrase_retry': CompanionReply(
       "Almost — let's try this one.",
-      CompanionExpression.encouraging,
+      CompanionExpression.gentle,
     ),
     'rephrase_highlight': CompanionReply(
       "Here, look right here — that's the one.",
@@ -86,7 +86,7 @@ class CompanionBrain {
 
     // --- Reminder interrupt / resume ---
     'reminder_task_mode': CompanionReply(
-      "One moment — I have something important to tell you.",
+      'One moment — I have something important to tell you.',
       CompanionExpression.gentle,
     ),
     'reminder_ack_thanks': CompanionReply(
@@ -104,13 +104,13 @@ class CompanionBrain {
       CompanionExpression.encouraging,
     ),
     'badge_earned': CompanionReply(
-      "You earned a little star for that — well done!",
+      'You earned a little star for that — well done!',
       CompanionExpression.encouraging,
     ),
 
     // --- Session end ---
     'session_end': CompanionReply(
-      "That was lovely spending time with you today. See you again soon!",
+      'That was lovely spending time with you today. See you again soon!',
       CompanionExpression.encouraging,
     ),
 
@@ -121,7 +121,7 @@ class CompanionBrain {
 
     // --- Daily Living Guidance ---
     'daily_living_praise': CompanionReply(
-      "Wonderful, thank you for taking care of yourself!",
+      'Wonderful, thank you for taking care of yourself!',
       CompanionExpression.encouraging,
     ),
     'daily_living_gentle': CompanionReply(
@@ -131,7 +131,7 @@ class CompanionBrain {
 
     // --- Personalization loop (Phase 2 — Personal Fact Bank) ---
     'casual_fact_prompt': CompanionReply(
-      "Before we play, tell me something — I love hearing about your life.",
+      'Before we play, tell me something — I love hearing about your life.',
       CompanionExpression.encouraging,
     ),
     'fact_saved_thanks': CompanionReply(

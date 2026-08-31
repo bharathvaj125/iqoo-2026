@@ -28,10 +28,12 @@ class _StreakBadgeBarState extends State<StreakBadgeBar> {
   Future<void> _load() async {
     final streak = await LocalStore().getStreak(widget.patientId);
     final badges = await LocalStore().getBadges(widget.patientId);
-    if (mounted) setState(() {
+    if (mounted) {
+      setState(() {
       _streak = streak;
       _badges = badges;
     });
+    }
   }
 
   @override

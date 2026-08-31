@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smriti/core/theme.dart';
 import '../services/companion.dart';
 import '../../../widgets/companion_widget.dart';
+import '../utils/patient_page_route.dart';
 import 'profile_select_screen.dart';
 
 /// First thing the elder sees when the app opens — the companion
@@ -36,7 +37,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _goToProfiles() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const ProfileSelectScreen()),
+      PatientPageRoute(builder: (_) => const ProfileSelectScreen()),
     );
   }
 

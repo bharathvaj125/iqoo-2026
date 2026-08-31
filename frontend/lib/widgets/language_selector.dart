@@ -46,7 +46,7 @@ class LanguageSelector extends StatelessWidget {
               const SizedBox(height: 6),
             ],
             DropdownButtonFormField<Locale?>(
-              value: currentLocale,
+              initialValue: currentLocale,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
