@@ -4,6 +4,7 @@ import 'package:smriti/core/repository_listener.dart';
 import 'package:smriti/core/theme.dart';
 import 'package:smriti/modules/caregiver/data/caregiver_repository.dart';
 import 'package:smriti/modules/caregiver/widgets/alert_tile.dart';
+import 'package:smriti/widgets/sign_out_button.dart';
 
 /// Trend flags only — never phrased as diagnosis. Diagnosis stays with a clinician.
 class AlertsScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _AlertsScreenState extends State<AlertsScreen> with RepositoryListener {
       });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Alerts')),
+      appBar: AppBar(title: const Text('Alerts'), actions: const [SignOutButton()]),
       body: alerts.isEmpty
           ? _emptyState()
           : ListView.separated(

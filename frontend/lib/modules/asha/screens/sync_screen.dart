@@ -3,6 +3,7 @@ import 'package:smriti/core/repository_listener.dart';
 import 'package:smriti/core/theme.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/asha/widgets/sync_status_badge.dart';
+import 'package:smriti/widgets/sign_out_button.dart';
 
 /// Panel 3 of 3. A status view, never a gate — the app stays fully usable regardless
 /// of what's shown here. Demo behavior: airplane mode on, use the app, reconnect, watch it drain.
@@ -30,7 +31,7 @@ class _SyncScreenState extends State<SyncScreen> with RepositoryListener {
     final pendingCount = outbox.where((e) => e.state != SyncState.synced).length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Sync')),
+      appBar: AppBar(title: const Text('Sync'), actions: const [SignOutButton()]),
       body: Column(
         children: [
           Padding(

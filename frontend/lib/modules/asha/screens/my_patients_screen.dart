@@ -5,6 +5,7 @@ import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/asha/screens/new_patient_screen.dart';
 import 'package:smriti/modules/asha/screens/patient_detail_screen.dart';
 import 'package:smriti/modules/asha/widgets/patient_tile.dart';
+import 'package:smriti/widgets/sign_out_button.dart';
 
 /// Panel 2 of 3. Roster assigned to this ASHA, surfacing trend flags and missed sessions
 /// at a glance — never phrased as diagnosis, only deviation from her own baseline.
@@ -36,7 +37,7 @@ class _MyPatientsScreenState extends State<MyPatientsScreen> with RepositoryList
       });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('My Patients')),
+      appBar: AppBar(title: const Text('My Patients'), actions: const [SignOutButton()]),
       floatingActionButton: FloatingActionButton.extended(
         // Unique tag required: this panel and Today's Sessions are both mounted inside
         // AshaHome's IndexedStack, and two default-tagged FABs crash the route animation.

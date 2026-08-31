@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:smriti/auth/auth_gate.dart';
 import 'package:smriti/core/locale_controller.dart';
 import 'package:smriti/core/theme.dart';
 import 'package:smriti/debug/companion_debug_screen.dart';
@@ -39,9 +41,10 @@ class SmritiApp extends StatelessWidget {
           supportedLocales: AppLocaleController.supported,
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
-          home: const RoleSelectScreen(),
+          home: const EntryScreen(),
           routes: {
             '/debug/companion': (context) => const CompanionDebugScreen(),
+            '/debug/roles': (context) => const DevRolePickerScreen(),
           },
         );
       },
@@ -49,11 +52,12 @@ class SmritiApp extends StatelessWidget {
   }
 }
 
-/// Dev-only entry point for this branch. Each role authenticates for real
-/// (JWT for ASHA/caregiver, photo-tile for the patient) once that's wired up;
-/// this picker stands in for all three during module development.
-class RoleSelectScreen extends StatelessWidget {
-  const RoleSelectScreen({super.key});
+/// The real app entry point. ASHA/Caregiver go through [AuthGate]'s
+/// passwordless email sign-in (see lib/auth/) — the Patient module keeps its
+/// existing no-login, photo-tile flow and is reached directly, per the
+/// architecture.
+class EntryScreen extends StatelessWidget {
+  const EntryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -68,10 +72,74 @@ class RoleSelectScreen extends StatelessWidget {
                 const Text('Smriti', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
                 const Text(
-                  'SIH26003 — dev role picker',
+                  'SIH26003',
                   style: TextStyle(color: Colors.black54),
                 ),
                 const SizedBox(height: 40),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const AuthGate()),
+                    ),
+                    icon: const Icon(Icons.groups_rounded),
+                    label: const Text('ASHA worker / Caregiver'),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const PatientHome()),
+                    ),
+                    icon: const Icon(Icons.self_improvement_rounded),
+                    label: const Text('Patient'),
+                  ),
+                ),
+                // Only ever reachable in a debug build (flutter run) — never shown to
+                // a real user in a release build, per kDebugMode. Skips straight into
+                // any module for internal testing, bypassing sign-in and the
+                // companion/game flows so teammates can jump around quickly.
+                if (kDebugMode) ...[
+                  const SizedBox(height: 32),
+                  TextButton.icon(
+                    onPressed: () => Navigator.of(context).pushNamed('/debug/roles'),
+                    icon: const Icon(Icons.bug_report_rounded, size: 18),
+                    label: const Text('Dev: skip sign-in'),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Dev-only shortcut into any module, bypassing sign-in — see [EntryScreen]'s
+/// kDebugMode-gated link above. Never reachable in a release build.
+class DevRolePickerScreen extends StatelessWidget {
+  const DevRolePickerScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Dev role picker')),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Internal testing only — skips sign-in entirely.',
+                  style: TextStyle(color: Colors.black54),
+                ),
+                const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(

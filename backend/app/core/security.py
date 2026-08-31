@@ -1,22 +1,15 @@
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def create_access_token(subject: str, role: str) -> str:
+def create_access_token(subject: str, role: str | None) -> str:
+    """`role` is None for a brand-new account that hasn't completed the one-time
+    role-selection step yet (see app/api/routes/auth.py) — protected routes that need a
+    role should check for that explicitly rather than assuming it's always set.
+    """
     expire = datetime.now(timezone.utc) + timedelta(minutes=settings.jwt_expire_minutes)
     payload = {"sub": subject, "role": role, "exp": expire}
     return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)

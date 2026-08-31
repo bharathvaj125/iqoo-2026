@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session as DBSession
 from app.api.deps import get_current_user
 from app.db.session import get_db
 from app.models.patient import Patient
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.schemas.patient import PatientCreate, PatientOut
 
 router = APIRouter(prefix="/api/patients", tags=["patients"])
@@ -17,7 +17,10 @@ def list_patients(
 ) -> list[Patient]:
     """My Patients panel: roster assigned to the calling ASHA, or patients tied to a caregiver."""
     query = db.query(Patient)
-    if current_user.role.value == "asha":
+    # current_user.role is None for an account that hasn't finished the one-time
+    # role-selection step (POST /api/auth/role) — falls through to the caregiver
+    # filter below rather than crashing on `.value` of a None.
+    if current_user.role == UserRole.asha:
         query = query.filter(Patient.assigned_asha_id == current_user.id)
     else:
         query = query.filter(Patient.primary_caregiver_id == current_user.id)
