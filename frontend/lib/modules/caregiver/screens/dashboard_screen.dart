@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smriti/widgets/fade_slide_route.dart';
 import 'package:smriti/core/local_db/alert_store.dart';
 import 'package:smriti/core/models/caregiver.dart';
 import 'package:smriti/core/models/reminder.dart';
@@ -31,7 +32,7 @@ class _DashboardScreenState extends State<DashboardScreen> with RepositoryListen
   }
 
   Future<void> _openAndRefresh(Widget screen) async {
-    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+    await Navigator.of(context).push(fadeSlideRoute(builder: (_) => screen));
     if (mounted) setState(() {});
   }
 
@@ -210,31 +211,37 @@ class _DashboardScreenState extends State<DashboardScreen> with RepositoryListen
       ReminderType.appointment => Icons.event_rounded,
     };
 
+    // A row cramming icon + label + bar + percentage onto one line stopped fitting
+    // once body text hit the design system's 20px floor — "Appointment" alone wraps
+    // a fixed-width column at that size. Stacking label/count above a full-width bar
+    // scales with font size and long words (including translated ones) instead of
+    // fighting them.
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: falling ? AppTheme.danger : AppTheme.primary),
-          const SizedBox(width: 10),
-          SizedBox(width: 96, child: Text(t.type.label, style: const TextStyle(fontWeight: FontWeight.w600))),
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: t.rate,
-                minHeight: 10,
-                backgroundColor: Colors.black.withValues(alpha: 0.08),
-                valueColor: AlwaysStoppedAnimation(falling ? AppTheme.danger : AppTheme.primary),
+          Row(
+            children: [
+              Icon(icon, size: 20, color: falling ? AppTheme.danger : AppTheme.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(t.type.label, style: const TextStyle(fontWeight: FontWeight.w600)),
               ),
-            ),
+              Text(
+                '$percent% · ${t.total}',
+                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              ),
+            ],
           ),
-          const SizedBox(width: 10),
-          SizedBox(
-            width: 64,
-            child: Text(
-              '$percent% · ${t.total}',
-              textAlign: TextAlign.right,
-              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: t.rate,
+              minHeight: 10,
+              backgroundColor: Colors.black.withValues(alpha: 0.08),
+              valueColor: AlwaysStoppedAnimation(falling ? AppTheme.danger : AppTheme.primary),
             ),
           ),
         ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smriti/widgets/fade_slide_route.dart';
 import 'package:smriti/core/local_db/alert_store.dart';
 import 'package:smriti/core/repository_listener.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
@@ -44,7 +45,7 @@ class _MyPatientsScreenState extends State<MyPatientsScreen> with RepositoryList
         heroTag: 'fab-onboard-patient',
         onPressed: () async {
           final added = await Navigator.of(context).push<bool>(
-            MaterialPageRoute(builder: (_) => const NewPatientScreen()),
+            fadeSlideRoute(builder: (_) => const NewPatientScreen()),
           );
           setState(() {});
           if (added == true && context.mounted) {
@@ -67,7 +68,7 @@ class _MyPatientsScreenState extends State<MyPatientsScreen> with RepositoryList
                   missedSessionCount: _repo.missedSessionCountFor(patient.id),
                   onTap: () async {
                     await Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => PatientDetailScreen(patientId: patient.id)),
+                      fadeSlideRoute(builder: (_) => PatientDetailScreen(patientId: patient.id)),
                     );
                     setState(() {});
                   },

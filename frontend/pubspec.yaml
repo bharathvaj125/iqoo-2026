@@ -38,3 +38,37 @@ flutter:
   assets:
     - assets/audio/
     - assets/images/
+  # Bundled locally (not fetched via the google_fonts package's default runtime
+  # download) to stay consistent with the app's offline-first design — see
+  # assets/fonts/README.md for licensing and where these came from.
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins/Poppins-Bold.ttf
+          weight: 700
+    - family: Noto Sans
+      fonts:
+        - asset: assets/fonts/NotoSans/NotoSans-Regular.ttf
+        - asset: assets/fonts/NotoSans/NotoSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSans/NotoSans-Bold.ttf
+          weight: 700
+    # Assamese script. Distinct family (not a "fallback") so it can be selected
+    # explicitly when the active locale is `as` — see core/theme.dart.
+    - family: Noto Sans Bengali
+      fonts:
+        - asset: assets/fonts/NotoSansBengali/NotoSansBengali-Regular.ttf
+        - asset: assets/fonts/NotoSansBengali/NotoSansBengali-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/NotoSansBengali/NotoSansBengali-Bold.ttf
+          weight: 700
+    # Manipuri (Meitei) script. Google Fonts only publishes Regular/Bold for
+    # this family — no SemiBold exists to bundle.
+    - family: Noto Sans Meetei Mayek
+      fonts:
+        - asset: assets/fonts/NotoSansMeeteiMayek/NotoSansMeeteiMayek-Regular.ttf
+        - asset: assets/fonts/NotoSansMeeteiMayek/NotoSansMeeteiMayek-Bold.ttf
+          weight: 700

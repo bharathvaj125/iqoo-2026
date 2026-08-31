@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smriti/widgets/fade_slide_route.dart';
 import 'package:intl/intl.dart';
 import 'package:smriti/core/models/session.dart';
 import 'package:smriti/core/theme.dart';
@@ -190,7 +191,7 @@ class _PatientDetailScreenState extends State<PatientDetailScreen> {
 
   Future<void> _captureBaseline(patient) async {
     final captured = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(
+      fadeSlideRoute(
         builder: (_) => BaselineCaptureScreen(patientId: patient.id, patientName: patient.name),
       ),
     );

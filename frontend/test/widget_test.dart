@@ -8,6 +8,18 @@ import 'package:smriti/main.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/caregiver/data/caregiver_repository.dart';
 
+/// `pumpAndSettle()` waits until nothing is animating — which never happens once
+/// a screen is showing `ModuleCompanionHeader`'s CompanionWidget, whose idle
+/// float/blink/glow/mist animations repeat forever by design. Any test that
+/// lands on AshaHome/CaregiverHome (both now show that header) needs this bounded
+/// pump instead: enough frames for the ~280ms fadeSlideRoute transition and any
+/// state updates to finish, without waiting for an animation that's supposed to
+/// keep going.
+Future<void> pumpBriefly(WidgetTester tester) async {
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 350));
+}
+
 void main() {
   setUp(() async {
     // Load the repositories the way main() does, so these screens render against the
@@ -54,7 +66,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('ASHA worker'));
-    await tester.pumpAndSettle();
+    await pumpBriefly(tester);
 
     expect(find.text("Today's Sessions"), findsOneWidget);
     expect(find.text('New session'), findsOneWidget);
@@ -65,10 +77,10 @@ void main() {
     await tester.tap(find.text('Dev: skip sign-in'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('ASHA worker'));
-    await tester.pumpAndSettle();
+    await pumpBriefly(tester);
 
     await tester.tap(find.text('Patients'));
-    await tester.pumpAndSettle();
+    await pumpBriefly(tester);
 
     expect(find.text('My Patients'), findsOneWidget);
     // Wanpen Marak is seeded without a baseline so the onboarding path stays visible.
@@ -82,7 +94,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Caregiver'));
-    await tester.pumpAndSettle();
+    await pumpBriefly(tester);
 
     // "Dashboard" appears twice: the AppBar title and the bottom-nav label.
     expect(find.text('Dashboard'), findsWidgets);
@@ -93,7 +105,7 @@ void main() {
     await tester.tap(find.text('Dev: skip sign-in'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Caregiver'));
-    await tester.pumpAndSettle();
+    await pumpBriefly(tester);
 
     // Nothing has been completed yet, so attendance has no data to show.
     expect(find.text('None scheduled'), findsOneWidget);

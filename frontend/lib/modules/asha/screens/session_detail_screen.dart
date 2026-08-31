@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smriti/widgets/fade_slide_route.dart';
 import 'package:smriti/core/models/patient.dart';
 import 'package:smriti/core/models/session.dart';
 import 'package:smriti/core/theme.dart';
@@ -139,7 +140,7 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
     await _repo.completeSession(sessionId);
     if (!mounted) return;
     await Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => SessionSummaryScreen(sessionId: sessionId)),
+      fadeSlideRoute(builder: (_) => SessionSummaryScreen(sessionId: sessionId)),
     );
   }
 

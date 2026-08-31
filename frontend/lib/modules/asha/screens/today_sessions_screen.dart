@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smriti/widgets/fade_slide_route.dart';
 import 'package:intl/intl.dart';
 import 'package:smriti/core/models/session.dart';
 import 'package:smriti/core/repository_listener.dart';
@@ -57,7 +58,7 @@ class _TodaySessionsScreenState extends State<TodaySessionsScreen> with Reposito
         heroTag: 'fab-new-session',
         onPressed: () async {
           final created = await Navigator.of(context).push<bool>(
-            MaterialPageRoute(builder: (_) => const NewSessionScreen()),
+            fadeSlideRoute(builder: (_) => const NewSessionScreen()),
           );
           setState(() {});
           if (created == true && context.mounted) {
@@ -103,7 +104,7 @@ class _TodaySessionsScreenState extends State<TodaySessionsScreen> with Reposito
             }
             if (!mounted) return;
             await Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => SessionDetailScreen(sessionId: session.id)),
+              fadeSlideRoute(builder: (_) => SessionDetailScreen(sessionId: session.id)),
             );
             setState(() {});
           },

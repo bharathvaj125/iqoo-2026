@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smriti/widgets/fade_slide_route.dart';
 import 'package:smriti/core/theme.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/asha/screens/baseline_capture_screen.dart';
@@ -43,7 +44,7 @@ class _NewPatientScreenState extends State<NewPatientScreen> {
 
     if (captureBaselineNext) {
       await Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
+        fadeSlideRoute(
           builder: (_) => BaselineCaptureScreen(patientId: patient.id, patientName: patient.name),
         ),
       );

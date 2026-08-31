@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smriti/modules/asha/screens/my_patients_screen.dart';
 import 'package:smriti/modules/asha/screens/sync_screen.dart';
 import 'package:smriti/modules/asha/screens/today_sessions_screen.dart';
+import 'package:smriti/widgets/module_companion_header.dart';
 
 /// The three established panels, per the ASHA module spec: Today's Sessions / My Patients / Sync.
 class AshaHome extends StatefulWidget {
@@ -19,7 +20,12 @@ class _AshaHomeState extends State<AshaHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: _screens),
+      body: Column(
+        children: [
+          const ModuleCompanionHeader(label: 'Smriti — ASHA'),
+          Expanded(child: IndexedStack(index: _index, children: _screens)),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),

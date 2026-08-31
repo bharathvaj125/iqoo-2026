@@ -3,6 +3,7 @@ import 'package:smriti/modules/caregiver/screens/alerts_screen.dart';
 import 'package:smriti/modules/caregiver/screens/dashboard_screen.dart';
 import 'package:smriti/modules/caregiver/screens/digest_screen.dart';
 import 'package:smriti/modules/caregiver/screens/reminders_screen.dart';
+import 'package:smriti/widgets/module_companion_header.dart';
 
 class CaregiverHome extends StatefulWidget {
   const CaregiverHome({super.key});
@@ -19,7 +20,12 @@ class _CaregiverHomeState extends State<CaregiverHome> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: _screens),
+      body: Column(
+        children: [
+          const ModuleCompanionHeader(label: 'Smriti — Caregiver'),
+          Expanded(child: IndexedStack(index: _index, children: _screens)),
+        ],
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
         onDestinationSelected: (i) => setState(() => _index = i),

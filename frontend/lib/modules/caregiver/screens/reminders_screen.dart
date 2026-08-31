@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smriti/widgets/fade_slide_route.dart';
 import 'package:smriti/core/repository_listener.dart';
 import 'package:smriti/modules/caregiver/data/caregiver_repository.dart';
 import 'package:smriti/modules/caregiver/screens/new_reminder_screen.dart';
@@ -31,7 +32,7 @@ class _RemindersScreenState extends State<RemindersScreen> with RepositoryListen
         heroTag: 'fab-new-reminder',
         onPressed: () async {
           final created = await Navigator.of(context).push<bool>(
-            MaterialPageRoute(builder: (_) => const NewReminderScreen()),
+            fadeSlideRoute(builder: (_) => const NewReminderScreen()),
           );
           setState(() {});
           if (created == true && context.mounted) {
