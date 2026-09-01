@@ -77,9 +77,11 @@ flutter:
     # browser's own text rendering would. Without a bundled emoji font, every
     # emoji the Patient module uses (profile avatars, Picture Recall's items,
     # mood faces) renders as a generic missing-glyph placeholder instead of the
-    # actual picture. Monochrome Noto Emoji, not the much larger colour Noto
-    # Color Emoji, covers all but one of the ~39 codepoints this app actually
-    # uses (see core/theme.dart) at a fraction of the size.
-    - family: Noto Emoji
+    # actual picture. This engine's CanvasKit build does render COLR colour
+    # glyphs correctly (confirmed live, not assumed), so this is the real
+    # colour font, not a monochrome stand-in — a real ~25MB size cost against
+    # this app's offline-first design, accepted because the design system
+    # calls for actual pictures here, not icons.
+    - family: Noto Color Emoji
       fonts:
-        - asset: assets/fonts/NotoEmoji/NotoEmoji-Regular.ttf
+        - asset: assets/fonts/NotoColorEmoji/NotoColorEmoji-Regular.ttf
