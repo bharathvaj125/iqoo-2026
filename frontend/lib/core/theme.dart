@@ -105,7 +105,22 @@ class AppTheme {
   /// Body text and all multilingual content, per the design system.
   static const _bodyFontFamily = 'Noto Sans';
 
-  static const _scriptFallbacks = ['Noto Sans Bengali', 'Noto Sans Meetei Mayek'];
+  /// Script fonts for text this app actually authors (Bengali for Assamese,
+  /// Meetei Mayek for Manipuri), plus a bundled emoji font. Naming an
+  /// OS-installed font like "Segoe UI Emoji" here does *not* work — web runs
+  /// on the CanvasKit renderer, which paints the whole app onto one canvas via
+  /// Skia's own font manager and has no way to reach an OS font by name the
+  /// way a real browser's HTML text does. Without an actual bundled emoji
+  /// font, every emoji the Patient module uses (profile avatars, Picture
+  /// Recall's items, mood faces) renders as a generic missing-glyph
+  /// placeholder instead of the intended picture — confirmed by inspecting
+  /// the live DOM, not by reading the code. Noto Emoji is monochrome, not the
+  /// full-colour Noto Color Emoji, at a fraction of the size.
+  static const _scriptFallbacks = [
+    'Noto Sans Bengali',
+    'Noto Sans Meetei Mayek',
+    'Noto Emoji',
+  ];
 
   /// ASHA and caregiver dashboards: data-dense, professional-facing surfaces.
   /// These don't need the Patient module's one-decision-per-screen layout

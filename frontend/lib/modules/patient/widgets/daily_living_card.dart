@@ -103,7 +103,7 @@ class _DailyLivingCardState extends State<DailyLivingCard> {
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                     ),
-                    child: const Text('Did you do it? ✓'),
+                    child: const Text('Did you do it?'),
                   ),
                 ),
               ],
