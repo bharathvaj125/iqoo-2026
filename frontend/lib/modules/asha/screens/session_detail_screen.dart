@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:smriti/widgets/fade_slide_route.dart';
 import 'package:smriti/core/models/patient.dart';
 import 'package:smriti/core/models/session.dart';
 import 'package:smriti/core/theme.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/asha/screens/session_summary_screen.dart';
+import 'package:smriti/widgets/companion_widget.dart';
 
 /// In-session facilitation view: large tap targets, minimal steps per patient per round.
 /// This is used live during a session on a shared tablet, not filled out afterward.
@@ -29,6 +33,68 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
 
   final Map<String, ResponseMarking?> _currentRoundMarks = {};
 
+  // A self-contained TTS instance rather than importing the Patient module's
+  // TtsService — ASHA and Patient are deliberately separate modules (see
+  // ModuleCompanionHeader's doc comment), and this screen's use is simple
+  // enough (announce the round, no mouth-sync) not to need that seam.
+  final FlutterTts _tts = FlutterTts();
+  bool _ttsReady = false;
+  CompanionExpression _companionExpression = CompanionExpression.neutral;
+
+  @override
+  void initState() {
+    super.initState();
+    _announceRound();
+  }
+
+  @override
+  void dispose() {
+    _tts.stop();
+    super.dispose();
+  }
+
+  Future<void> _ensureTts() async {
+    if (_ttsReady) return;
+    await _tts.setLanguage('en-IN');
+    // 0.5 reads as a normal, clear pace on most platforms — a slower elder-facing
+    // rate belongs to the Patient module's own TtsService (see its doc comment);
+    // this is the ASHA facilitator announcing a round, not addressing the elder.
+    await _tts.setSpeechRate(0.5);
+    await _tts.setPitch(1.05);
+    await _tts.setVolume(1.0);
+    _ttsReady = true;
+  }
+
+  /// Speaks the round prompt with a "speaking" expression, then settles into
+  /// "listening" for the rest of the round — the companion visibly participates
+  /// in conducting the session rather than sitting there as a static icon.
+  Future<void> _announceRound() async {
+    await _ensureTts();
+    if (!mounted) return;
+    setState(() => _companionExpression = CompanionExpression.encouraging);
+
+    final completer = Completer<void>();
+    _tts.setCompletionHandler(() {
+      if (!completer.isCompleted) completer.complete();
+    });
+    _tts.setErrorHandler((_) {
+      if (!completer.isCompleted) completer.complete();
+    });
+
+    try {
+      final result = await _tts.speak('Round $_round. Watch closely, and mark how each patient responds.');
+      if (result == 1) {
+        await completer.future.timeout(const Duration(seconds: 10), onTimeout: () {});
+      }
+    } catch (_) {
+      // No TTS engine on this platform (e.g. some web/desktop setups) — the
+      // companion still settles into "listening" below, just without audio.
+    }
+
+    if (!mounted) return;
+    setState(() => _companionExpression = CompanionExpression.listening);
+  }
+
   @override
   Widget build(BuildContext context) {
     final session = _repo.sessionById(widget.sessionId);
@@ -44,7 +110,11 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         title: Text('Round $_round · ${session.isGroup ? "Group" : "Solo"}'),
         actions: [
           TextButton.icon(
-            onPressed: _round > 1 && !_submitting ? () => _endSession(session.id) : null,
+            // Ending is always available — an ASHA who opened a session by mistake, or
+            // needs to stop early, was previously stuck here until she'd completed a
+            // full round (this button stayed disabled at _round == 1). It only prompts
+            // first when ending would throw away rounds that aren't saved yet.
+            onPressed: !_submitting ? () => _endSession(session.id) : null,
             icon: const Icon(Icons.check_circle_outline_rounded),
             label: const Text('End session'),
           ),
@@ -55,6 +125,10 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: CompanionWidget(size: 96, expression: _companionExpression),
+            ),
+            const SizedBox(height: 8),
             const Text(
               'Mark each patient for this round',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -132,10 +206,36 @@ class _SessionDetailScreenState extends State<SessionDetailScreen> {
       _currentRoundMarks.clear();
       _submitting = false;
     });
+    unawaited(_announceRound());
   }
 
   Future<void> _endSession(String sessionId) async {
     if (_submitting) return;
+
+    // Nothing recorded, or the current round is only partway marked — ending now
+    // would silently drop it, so confirm first. A round that's already been
+    // submitted (round > 1, nothing pending) ends immediately, matching how the
+    // button used to behave for that case.
+    final hasUnsavedProgress = _round == 1 || _currentRoundMarks.isNotEmpty;
+    if (hasUnsavedProgress) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('End session?'),
+          content: Text(
+            _round == 1 && _currentRoundMarks.isEmpty
+                ? 'No rounds have been recorded yet for this session.'
+                : "This round's marks haven't been saved yet and will be lost.",
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Keep going')),
+            FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('End session')),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+
     setState(() => _submitting = true);
     await _repo.completeSession(sessionId);
     if (!mounted) return;

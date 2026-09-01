@@ -19,7 +19,9 @@ class TtsService {
   Future<void> _ensureInit() async {
     if (_initialized) return;
     await _tts.setLanguage('en-IN'); // Indian English voice where available
-    await _tts.setSpeechRate(0.42); // slower, elder-friendly pace
+    // 0.42 read as a crawl in practice — still a touch slower than the 0.5
+    // most platforms treat as "normal", which is the elder-friendly part.
+    await _tts.setSpeechRate(0.5);
     await _tts.setPitch(1.15); // slightly higher, child-like pitch
     await _tts.setVolume(1.0);
     _initialized = true;
