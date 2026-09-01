@@ -94,6 +94,10 @@ yourself.
   assumption that every elder has family. The dashboard reframes itself for each, and the
   role is switchable so both are demonstrable
 - **Reminders** — create reminders across all four PS-named categories with a schedule
+- **Goals** — simple, single-step routine nudges the caregiver sets herself ("make tea",
+  "go to the bathroom at night") for a time-of-day bucket, distinct from scheduled
+  reminders. Reuses the Patient module's `DailyLivingPrompt` shape so the two sides
+  already agree on what a goal looks like once real sync exists — see "Not done yet"
 - **Voice clips** — record a real clip (mic), preview it before saving, and **reuse a
   previously recorded clip** on later reminders instead of re-recording (novelty claim #6,
   actually implemented rather than described)
@@ -196,6 +200,11 @@ merge" below); everything else below was verified working as originally built.
   patient before a sync payload can be attributed to anyone; building that felt like it
   deserved its own reviewed design rather than a same-device demo shortcut bolted onto the
   Sync button, so it's documented here rather than faked
+- **Caregiver's Goals screen has the identical gap, one direction.** A goal she adds is
+  real and persists on her own device, using the same `DailyLivingPrompt` shape the
+  Patient module already reads from its own on-device prompts — but nothing carries it
+  from her device to the elder's yet, for the same pairing/identity reason above. The
+  screen says so plainly rather than implying it reaches the elder today
 - Direct voice capture (Bhashini/AI4Bharat STT) for the personal fact bank is deferred,
   per the patient spec itself — additive only, never blocking the facilitator-assisted
   path that's built

@@ -7,6 +7,10 @@ import 'package:smriti/core/models/alert.dart';
 import 'package:smriti/core/models/caregiver.dart';
 import 'package:smriti/core/models/reminder.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
+// Reusing the Patient module's DailyLivingPrompt shape (not its LocalStore) for the
+// goals a caregiver sets — see addGoal's doc comment for why the two sides don't
+// share storage yet.
+import 'package:smriti/modules/patient/models/patient_models.dart' show DailyLivingPrompt;
 
 class ReminderAdherence {
   final Reminder reminder;
@@ -72,10 +76,12 @@ class CaregiverRepository {
   static const _acksKey = 'caregiver_acks_v2';
   static const _voiceClipsKey = 'caregiver_voice_clips_v2';
   static const _profileKey = 'caregiver_profile_v2';
+  static const _goalsKey = 'caregiver_goals_v1';
 
   final List<Reminder> _reminders = [];
   final List<ReminderAck> _acks = [];
   final List<String> _voiceClips = [];
+  final List<DailyLivingPrompt> _goals = [];
 
   CaregiverProfile _profile = const CaregiverProfile(
     id: 'caregiver-demo-1',
@@ -90,6 +96,11 @@ class CaregiverRepository {
   Stream<void> get onChange => _changes.stream;
 
   List<Reminder> get reminders => List.unmodifiable(_reminders);
+
+  /// Daily-living-style goals the caregiver sets herself — "make tea", "go to the
+  /// bathroom at night", that kind of single-step routine nudge — as opposed to
+  /// [reminders], which are scheduled medicine/hydration/appointment alerts.
+  List<DailyLivingPrompt> get goals => List.unmodifiable(_goals);
 
   CaregiverProfile get profile => _profile;
 
@@ -129,11 +140,13 @@ class CaregiverRepository {
     final ackJson = await store.readList(_acksKey);
     final voiceClipJson = await store.readList(_voiceClipsKey);
     final profileJson = await store.readList(_profileKey);
+    final goalJson = await store.readList(_goalsKey);
 
     _reminders.addAll(reminderJson.map(Reminder.fromJson));
     _acks.addAll(ackJson.map(ReminderAck.fromJson));
     _voiceClips.addAll(voiceClipJson.map((j) => j['url'] as String));
     if (profileJson.isNotEmpty) _profile = CaregiverProfile.fromJson(profileJson.first);
+    _goals.addAll(goalJson.map(DailyLivingPrompt.fromJson));
   }
 
   void _seedDemoData() {
@@ -286,6 +299,43 @@ class CaregiverRepository {
 
   Future<void> markAlertReviewed(String alertId) => AlertStore.instance.markReviewed(alertId);
 
+  // ---------------------------------------------------------------------- goals
+
+  /// Stored on this side only for now. The Patient module reads its own, separate
+  /// set of DailyLivingPrompts from its own on-device LocalStore — the two devices
+  /// have no pairing/identity mechanism yet to know which patient this caregiver's
+  /// goals should reach (see docs/FEATURES.md's "Not done yet" section, written
+  /// while investigating the same gap for session/response-record sync). A goal
+  /// added here is real and persists, but it won't show up on the elder's device
+  /// until that pairing step exists.
+  Future<void> addGoal({required String text, required String timeOfDay}) async {
+    _goals.add(
+      DailyLivingPrompt(
+        id: 'goal-${DateTime.now().millisecondsSinceEpoch}',
+        category: 'caregiver_set',
+        triggerTimeOfDay: timeOfDay,
+        text: text,
+        isCaregiverCustomized: true,
+      ),
+    );
+    await _persistAll();
+    _changes.add(null);
+  }
+
+  Future<void> setGoalEnabled(String goalId, bool enabled) async {
+    final index = _goals.indexWhere((g) => g.id == goalId);
+    if (index == -1) return;
+    _goals[index] = _goals[index].copyWith(enabled: enabled);
+    await _persistAll();
+    _changes.add(null);
+  }
+
+  Future<void> deleteGoal(String goalId) async {
+    _goals.removeWhere((g) => g.id == goalId);
+    await _persistAll();
+    _changes.add(null);
+  }
+
   // -------------------------------------------------------------------- digest
 
   /// Everything here is derived from real records — session attendance from the ASHA
@@ -330,6 +380,7 @@ class CaregiverRepository {
       store.writeList(_acksKey, _acks.map((a) => a.toJson()).toList()),
       store.writeList(_voiceClipsKey, _voiceClips.map((url) => {'url': url}).toList()),
       store.writeList(_profileKey, [_profile.toJson()]),
+      store.writeList(_goalsKey, _goals.map((g) => g.toJson()).toList()),
     ]);
   }
 
@@ -339,6 +390,7 @@ class CaregiverRepository {
     _reminders.clear();
     _acks.clear();
     _voiceClips.clear();
+    _goals.clear();
     _profile = const CaregiverProfile(
       id: 'caregiver-demo-1',
       name: 'Imlong Ao',
