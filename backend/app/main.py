@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="Smriti API",
-    description="SIH26003 — Cognitive gaming and memory assistance platform for elderly dementia patients in NER.",
+    description="Cognitive gaming and memory assistance platform for people with memory-related conditions.",
     version="0.1.0",
     lifespan=lifespan,
 )

@@ -1,4 +1,4 @@
-/// Data models backing the Phase 1 core flow from the SIH26003 patient
+/// Data models backing the Phase 1 core flow from the patient
 /// module spec: reminders (with interrupt/resume), daily streaks,
 /// effort-based reward badges, and per-question response records with
 /// a `hint_level` for the rephrase ladder.

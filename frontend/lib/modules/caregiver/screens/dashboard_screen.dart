@@ -9,7 +9,6 @@ import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/caregiver/data/caregiver_repository.dart';
 import 'package:smriti/modules/caregiver/screens/alerts_screen.dart';
 import 'package:smriti/modules/caregiver/screens/reminders_screen.dart';
-import 'package:smriti/widgets/sign_out_button.dart';
 
 /// Decision-support, not just charts — every metric here has an action attached.
 /// Built for someone checking in occasionally from another city or country.
@@ -80,7 +79,6 @@ class _DashboardScreenState extends State<DashboardScreen> with RepositoryListen
                 .map((k) => PopupMenuItem(value: k, child: Text(k.label)))
                 .toList(),
           ),
-          const SignOutButton(),
         ],
       ),
       body: ListView(

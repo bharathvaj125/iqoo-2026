@@ -1,8 +1,8 @@
-# Smriti — SIH26003
+# Smriti
 
-AI-based cognitive gaming and memory-assistance platform for elderly dementia patients in
-India's North Eastern Region. See `docs/` for the full problem context, positioning, and
-module specs — read those before changing scope on anything here.
+AI-based cognitive gaming and memory-assistance platform for people with memory-related
+conditions. See `docs/` for the full problem context, positioning, and module specs — read
+those before changing scope on anything here.
 
 ## The whitespace, one sentence
 

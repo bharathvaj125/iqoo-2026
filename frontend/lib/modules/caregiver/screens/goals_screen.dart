@@ -3,7 +3,6 @@ import 'package:smriti/core/repository_listener.dart';
 import 'package:smriti/core/theme.dart';
 import 'package:smriti/modules/caregiver/data/caregiver_repository.dart';
 import 'package:smriti/modules/patient/models/patient_models.dart' show DailyLivingPrompt;
-import 'package:smriti/widgets/sign_out_button.dart';
 
 const _timeOfDayOptions = ['morning', 'afternoon', 'evening', 'night'];
 
@@ -55,7 +54,7 @@ class _GoalsScreenState extends State<GoalsScreen> with RepositoryListener {
     final goals = _repo.goals;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Goals'), actions: const [SignOutButton()]),
+      appBar: AppBar(title: const Text('Goals')),
       // One scrollable list start to finish — the add-goal card's own content (field +
       // chips + button) is already tall enough that splitting it from a separately
       // Expanded goal list overflowed on shorter viewports (a real bug: fixed once here

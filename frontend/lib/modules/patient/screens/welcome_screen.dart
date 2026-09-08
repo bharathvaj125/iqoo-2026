@@ -46,48 +46,51 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
       body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(flex: 2),
-            ListenableBuilder(
-              listenable: Companion.instance.controller,
-              builder: (context, _) {
-                return CompanionWidget(
-                  expression: Companion.instance.controller.expression,
-                  size: 250,
-                );
-              },
-            ),
-            const SizedBox(height: 28),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 180),
-              layoutBuilder: (currentChild, previousChildren) => currentChild ?? const SizedBox.shrink(),
-              child: Padding(
-                key: ValueKey(_caption),
-                padding: const EdgeInsets.symmetric(horizontal: 32),
-                child: Text(
-                  _caption,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(color: AppColors.primary, fontSize: 26),
+        child: SizedBox(
+          width: double.infinity,
+          child: Column(
+            children: [
+              const Spacer(flex: 2),
+              ListenableBuilder(
+                listenable: Companion.instance.controller,
+                builder: (context, _) {
+                  return CompanionWidget(
+                    expression: Companion.instance.controller.expression,
+                    size: 250,
+                  );
+                },
+              ),
+              const SizedBox(height: 28),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
+                layoutBuilder: (currentChild, previousChildren) => currentChild ?? const SizedBox.shrink(),
+                child: Padding(
+                  key: ValueKey(_caption),
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    _caption,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context)
+                        .textTheme
+                        .headlineMedium
+                        ?.copyWith(color: AppColors.primary, fontSize: 26),
+                  ),
                 ),
               ),
-            ),
-            const Spacer(flex: 3),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-              child: ElevatedButton(
-                onPressed: _goToProfiles,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+              const Spacer(flex: 3),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                child: ElevatedButton(
+                  onPressed: _goToProfiles,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text("Let's Start"),
                 ),
-                child: const Text("Let's Start"),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

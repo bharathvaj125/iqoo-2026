@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:smriti/auth/auth_gate.dart';
 import 'package:smriti/core/locale_controller.dart';
 import 'package:smriti/core/theme.dart';
 import 'package:smriti/debug/companion_debug_screen.dart';
@@ -44,7 +42,6 @@ class SmritiApp extends StatelessWidget {
           home: const EntryScreen(),
           routes: {
             '/debug/companion': (context) => const CompanionDebugScreen(),
-            '/debug/roles': (context) => const DevRolePickerScreen(),
           },
         );
       },
@@ -52,10 +49,9 @@ class SmritiApp extends StatelessWidget {
   }
 }
 
-/// The real app entry point. ASHA/Caregiver go through [AuthGate]'s
-/// passwordless email sign-in (see lib/auth/) — the Patient module keeps its
-/// existing no-login, photo-tile flow and is reached directly, per the
-/// architecture.
+/// The app's real entry point: three direct-entry tiles, no credentials, no
+/// intermediate screen. This build has no authentication anywhere — tapping a
+/// tile is pure navigation into that role's view.
 class EntryScreen extends StatelessWidget {
   const EntryScreen({super.key});
 
@@ -72,44 +68,36 @@ class EntryScreen extends StatelessWidget {
                 const Text('Smriti', style: TextStyle(fontSize: 32, fontWeight: FontWeight.w800)),
                 const SizedBox(height: 4),
                 const Text(
-                  'SIH26003',
+                  'Memory care, made simple',
                   style: TextStyle(color: Colors.black54),
                 ),
                 const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const AuthGate()),
-                    ),
-                    icon: const Icon(Icons.groups_rounded),
-                    label: const Text('ASHA worker / Caregiver'),
+                _RoleTile(
+                  label: 'ASHA Worker',
+                  icon: Icons.groups_rounded,
+                  color: AppTheme.primary,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const AshaHome()),
                   ),
                 ),
                 const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const PatientHome()),
-                    ),
-                    icon: const Icon(Icons.self_improvement_rounded),
-                    label: const Text('Patient'),
+                _RoleTile(
+                  label: 'Patient',
+                  icon: Icons.self_improvement_rounded,
+                  color: AppTheme.accent,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PatientHome()),
                   ),
                 ),
-                // Only ever reachable in a debug build (flutter run) — never shown to
-                // a real user in a release build, per kDebugMode. Skips straight into
-                // any module for internal testing, bypassing sign-in and the
-                // companion/game flows so teammates can jump around quickly.
-                if (kDebugMode) ...[
-                  const SizedBox(height: 32),
-                  TextButton.icon(
-                    onPressed: () => Navigator.of(context).pushNamed('/debug/roles'),
-                    icon: const Icon(Icons.bug_report_rounded, size: 18),
-                    label: const Text('Dev: skip sign-in'),
+                const SizedBox(height: 16),
+                _RoleTile(
+                  label: 'Caregiver',
+                  icon: Icons.favorite_rounded,
+                  color: AppTheme.primary,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CaregiverHome()),
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -119,74 +107,28 @@ class EntryScreen extends StatelessWidget {
   }
 }
 
-/// Dev-only shortcut into any module, bypassing sign-in — see [EntryScreen]'s
-/// kDebugMode-gated link above. Never reachable in a release build.
-class DevRolePickerScreen extends StatelessWidget {
-  const DevRolePickerScreen({super.key});
+class _RoleTile extends StatelessWidget {
+  const _RoleTile({required this.label, required this.icon, required this.color, required this.onTap});
+
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Dev role picker')),
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Internal testing only — skips sign-in entirely.',
-                  style: TextStyle(color: Colors.black54),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary, foregroundColor: Colors.white),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const AshaHome()),
-                    ),
-                    icon: const Icon(Icons.groups_rounded),
-                    label: const Text('ASHA worker'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(backgroundColor: AppTheme.accent, foregroundColor: Colors.white),
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const CaregiverHome()),
-                    ),
-                    icon: const Icon(Icons.favorite_rounded),
-                    label: const Text('Caregiver'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const PatientHome()),
-                    ),
-                    icon: const Icon(Icons.self_improvement_rounded),
-                    label: const Text('Patient'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () => Navigator.of(context).pushNamed('/debug/companion'),
-                    icon: const Icon(Icons.bug_report_rounded),
-                    label: const Text('Debug Companion Widget'),
-                  ),
-                ),
-              ],
-            ),
-          ),
+    return SizedBox(
+      width: double.infinity,
+      height: 64,
+      child: ElevatedButton.icon(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          foregroundColor: Colors.white,
+          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
         ),
+        onPressed: onTap,
+        icon: Icon(icon, size: 28),
+        label: Text(label),
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'package:smriti/core/repository_listener.dart';
 import 'package:smriti/modules/caregiver/data/caregiver_repository.dart';
 import 'package:smriti/modules/caregiver/screens/new_reminder_screen.dart';
 import 'package:smriti/modules/caregiver/widgets/reminder_card.dart';
-import 'package:smriti/widgets/sign_out_button.dart';
 
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
@@ -25,7 +24,7 @@ class _RemindersScreenState extends State<RemindersScreen> with RepositoryListen
     final reminders = CaregiverRepository.instance.reminders;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Reminders'), actions: const [SignOutButton()]),
+      appBar: AppBar(title: const Text('Reminders')),
       floatingActionButton: FloatingActionButton.extended(
         // This screen is both a tab in CaregiverHome and a pushed route from the
         // dashboard, so it can be mounted twice — keep its tag explicit.

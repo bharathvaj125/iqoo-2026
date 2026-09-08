@@ -8,7 +8,6 @@ import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/asha/screens/new_session_screen.dart';
 import 'package:smriti/modules/asha/screens/session_detail_screen.dart';
 import 'package:smriti/modules/asha/widgets/session_card.dart';
-import 'package:smriti/widgets/sign_out_button.dart';
 
 /// Panel 1 of 3. Shows both group and solo/outreach sessions — group is the default,
 /// core delivery mechanism; solo/outreach is the exception, not a separate primary flow.
@@ -37,7 +36,6 @@ class _TodaySessionsScreenState extends State<TodaySessionsScreen> with Reposito
     return Scaffold(
       appBar: AppBar(
         title: const Text("Today's Sessions"),
-        actions: const [SignOutButton()],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(28),
           child: Padding(

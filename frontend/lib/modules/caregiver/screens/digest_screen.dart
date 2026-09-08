@@ -6,7 +6,6 @@ import 'package:smriti/core/repository_listener.dart';
 import 'package:smriti/core/theme.dart';
 import 'package:smriti/modules/asha/data/asha_repository.dart';
 import 'package:smriti/modules/caregiver/data/caregiver_repository.dart';
-import 'package:smriti/widgets/sign_out_button.dart';
 
 /// Async weekly digest — a deliberate design choice for a caregiver checking in
 /// occasionally from another city or country, not a live feed they're expected to watch.
@@ -36,7 +35,7 @@ class _DigestScreenState extends State<DigestScreen> with RepositoryListener {
     final weekStart = now.subtract(const Duration(days: 7));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Weekly digest'), actions: const [SignOutButton()]),
+      appBar: AppBar(title: const Text('Weekly digest')),
       body: RefreshIndicator(
         onRefresh: () async => setState(() {}),
         child: ListView(
